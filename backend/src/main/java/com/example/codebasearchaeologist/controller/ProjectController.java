@@ -34,4 +34,9 @@ public class ProjectController {
     public ProjectResponseDto getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
+
+    @PostMapping("/{id}/analyze")
+    public ProjectResponseDto analyzeProject(@PathVariable Long id) {
+        return projectService.analyzeProject(id);
+    }
 }
