@@ -8,6 +8,11 @@ import com.example.codebasearchaeologist.entity.ProjectStatus;
 import com.example.codebasearchaeologist.exception.RepositoryDownloadException;
 import com.example.codebasearchaeologist.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
+import com.example.codebasearchaeologist.analyzer.JavaFileScanner;
+import com.example.codebasearchaeologist.analyzer.JavaCodeParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import java.util.Optional;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -18,10 +23,17 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final RepositoryDownloader repositoryDownloader;
+    private final JavaFileScanner javaFileScanner;
+    private final JavaCodeParser javaCodeParser;
 
-    public ProjectService(ProjectRepository projectRepository, RepositoryDownloader repositoryDownloader) {
+    public ProjectService(ProjectRepository projectRepository,
+                          RepositoryDownloader repositoryDownloader,
+                          JavaFileScanner javaFileScanner,
+                          JavaCodeParser javaCodeParser) {
         this.projectRepository = projectRepository;
         this.repositoryDownloader = repositoryDownloader;
+        this.javaFileScanner = javaFileScanner;
+        this.javaCodeParser = javaCodeParser;
     }
 
     public ProjectResponseDto createProject(ProjectRequestDto requestDto) {
@@ -49,22 +61,38 @@ public class ProjectService {
 
         try {
             File clonedDir = repositoryDownloader.cloneRepository(project.getRepositoryUrl(), project.getProjectId());
-
-            // For now, just confirm it worked. JavaParser analysis comes in Milestone 7.
             System.out.println("Cloned repository to: " + clonedDir.getAbsolutePath());
 
-            // Status stays ANALYZING until parsing (next milestone) completes it.
+            List<File> javaFiles = javaFileScanner.findJavaFiles(clonedDir);
+            System.out.println("Found " + javaFiles.size() + " Java files");
+
+            JavaParser parser = javaCodeParser.buildParser(clonedDir);
+
+            int parsedCount = 0;
+            for (File javaFile : javaFiles) {
+                Optional<CompilationUnit> cuOpt = javaCodeParser.parseFile(parser, javaFile);
+                if (cuOpt.isPresent()) {
+                    parsedCount++;
+                    CompilationUnit cu = cuOpt.get();
+                    String packageName = cu.getPackageDeclaration()
+                            .map(pd -> pd.getNameAsString())
+                            .orElse("(default package)");
+                    System.out.println("Parsed: " + javaFile.getName() + " | package: " + packageName);
+                }
+            }
+
+            System.out.println("Successfully parsed " + parsedCount + " / " + javaFiles.size() + " files");
+
             projectRepository.save(project);
 
         } catch (RepositoryDownloadException e) {
             project.setStatus(ProjectStatus.FAILED);
             projectRepository.save(project);
-            throw e; // re-throw so the controller/frontend knows it failed
+            throw e;
         }
 
         return toResponseDto(project);
     }
-
     public List<ProjectResponseDto> getAllProjects() {
         return projectRepository.findAll()
                 .stream()
