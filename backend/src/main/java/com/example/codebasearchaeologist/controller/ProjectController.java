@@ -3,9 +3,11 @@ package com.example.codebasearchaeologist.controller;
 import com.example.codebasearchaeologist.dto.ProjectRequestDto;
 import com.example.codebasearchaeologist.dto.ProjectResponseDto;
 import com.example.codebasearchaeologist.entity.Dependency;
+import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
+import com.example.codebasearchaeologist.service.DocumentationService;
 import com.example.codebasearchaeologist.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,16 @@ public class ProjectController {
     private final ProjectService projectService;
     private final JavaFileRepository javaFileRepository;
     private final DependencyRepository dependencyRepository;
+    private final DocumentationService documentationService;
 
-    public ProjectController(ProjectService projectService, JavaFileRepository javaFileRepository, DependencyRepository dependencyRepository) {
+    public ProjectController(ProjectService projectService,
+                             JavaFileRepository javaFileRepository,
+                             DependencyRepository dependencyRepository,
+                             DocumentationService documentationService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
+        this.documentationService = documentationService;
     }
 
     @PostMapping
@@ -57,5 +64,15 @@ public class ProjectController {
     @GetMapping("/{id}/dependencies")
     public List<Dependency> getProjectDependencies(@PathVariable Long id) {
         return dependencyRepository.findBySourceClass_JavaFile_Project_ProjectId(id);
+    }
+
+    @PostMapping("/{id}/generate-documentation")
+    public List<Documentation> generateDocumentation(@PathVariable Long id) {
+        return documentationService.generateDocumentationForProject(id);
+    }
+
+    @GetMapping("/{id}/documentation")
+    public List<Documentation> getDocumentation(@PathVariable Long id) {
+        return documentationService.getDocumentationForProject(id);
     }
 }
