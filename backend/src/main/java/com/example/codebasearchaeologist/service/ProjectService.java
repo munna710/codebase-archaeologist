@@ -10,6 +10,8 @@ import com.example.codebasearchaeologist.entity.Dependency;
 import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.entity.Project;
 import com.example.codebasearchaeologist.entity.ProjectStatus;
+import com.example.codebasearchaeologist.exception.DuplicateProjectException;
+import com.example.codebasearchaeologist.exception.ProjectNotFoundException;
 import com.example.codebasearchaeologist.exception.RepositoryDownloadException;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
 import com.example.codebasearchaeologist.repository.ProjectRepository;
@@ -41,6 +43,8 @@ public class ProjectService {
     private final DependencyAnalyzer dependencyAnalyzer;
     private final DependencyRepository dependencyRepository;
 
+
+
     public ProjectService(ProjectRepository projectRepository,
                           JavaFileRepository javaFileRepository,
                           RepositoryDownloader repositoryDownloader,
@@ -61,6 +65,9 @@ public class ProjectService {
 
 
     public ProjectResponseDto createProject(ProjectRequestDto requestDto) {
+        if (projectRepository.existsByRepositoryUrl(requestDto.getRepositoryUrl())) {
+            throw new DuplicateProjectException(requestDto.getRepositoryUrl());
+        }
         Project project = new Project();
 
         String[] parts = requestDto.getRepositoryUrl().split("/");
@@ -78,7 +85,7 @@ public class ProjectService {
 
     public ProjectResponseDto analyzeProject(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+                .orElseThrow(() -> new ProjectNotFoundException(id));
 
         project.setStatus(ProjectStatus.ANALYZING);
         projectRepository.save(project);

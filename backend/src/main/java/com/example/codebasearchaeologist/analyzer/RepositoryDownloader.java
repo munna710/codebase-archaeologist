@@ -50,4 +50,11 @@ public class RepositoryDownloader {
             throw new RepositoryDownloadException("Failed to clone repository: " + e.getMessage(), e);
         }
     }
+    public void cleanup(File clonedDir) {
+        try {
+            org.apache.commons.io.FileUtils.deleteDirectory(clonedDir);
+        } catch (IOException e) {
+            System.err.println("Failed to clean up temp directory: " + clonedDir.getAbsolutePath());
+        }
+    }
 }
