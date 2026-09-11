@@ -8,11 +8,17 @@ import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
 import com.example.codebasearchaeologist.service.DocumentationService;
+import com.example.codebasearchaeologist.service.PdfExportService;
 import com.example.codebasearchaeologist.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.example.codebasearchaeologist.service.MarkdownExportService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,15 +29,19 @@ public class ProjectController {
     private final JavaFileRepository javaFileRepository;
     private final DependencyRepository dependencyRepository;
     private final DocumentationService documentationService;
+    private final MarkdownExportService markdownExportService;
+    private final PdfExportService pdfExportService;
 
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
         this.documentationService = documentationService;
+        this.markdownExportService = markdownExportService;
+        this.pdfExportService = pdfExportService;
     }
 
     @PostMapping
@@ -74,5 +84,26 @@ public class ProjectController {
     @GetMapping("/{id}/documentation")
     public List<Documentation> getDocumentation(@PathVariable Long id) {
         return documentationService.getDocumentationForProject(id);
+    }
+
+    @GetMapping("/{id}/export/markdown")
+    public ResponseEntity<String> exportMarkdown(@PathVariable Long id) {
+        String markdown = markdownExportService.generateMarkdown(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=documentation.md")
+                .contentType(MediaType.parseMediaType("text/markdown"))
+                .body(markdown);
+    }
+
+    @GetMapping("/{id}/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(@PathVariable Long id) throws IOException {
+        String markdown = markdownExportService.generateMarkdown(id);
+        byte[] pdfBytes = pdfExportService.convertMarkdownToPdf(markdown);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=documentation.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 }
