@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { getProjectFiles } from '../api/files';
+import { Link } from 'react-router-dom';
 
 function CodeExplorer() {
   const { id } = useParams();
@@ -93,7 +94,8 @@ function CodeExplorer() {
 
           {file.classes.map((cls) => (
             <div key={cls.classId} style={{ marginLeft: '1rem', marginTop: '0.75rem' }}>
-              <strong>{cls.classType}:</strong> {cls.className}
+              <strong>{cls.classType}:</strong>{' '}
+              <Link to={`/projects/${id}/classes/${cls.classId}`}>{cls.className}</Link>
               {' '}
               <span style={{ color: '#64748b' }}>({cls.packageName})</span>
 
