@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface DependencyRepository extends JpaRepository<Dependency, Long> {
     List<Dependency> findBySourceClass_JavaFile_Project_ProjectId(Long projectId);
+    List<Dependency> findByTargetClass_ClassId(Long classId);
+    List<Dependency> findBySourceClass_ClassId(Long classId);
 }

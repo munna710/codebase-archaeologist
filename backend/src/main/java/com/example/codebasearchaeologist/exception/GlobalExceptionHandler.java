@@ -49,4 +49,9 @@ public class GlobalExceptionHandler {
         ErrorResponseDto body = new ErrorResponseDto(status.value(), status.getReasonPhrase(), message);
         return ResponseEntity.status(status).body(body);
     }
+
+    @ExceptionHandler(ClassNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleClassNotFound(ClassNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 }

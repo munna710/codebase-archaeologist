@@ -1,5 +1,6 @@
 package com.example.codebasearchaeologist.controller;
 
+import com.example.codebasearchaeologist.dto.ClassDetailsDto;
 import com.example.codebasearchaeologist.dto.ProjectRequestDto;
 import com.example.codebasearchaeologist.dto.ProjectResponseDto;
 import com.example.codebasearchaeologist.entity.Dependency;
@@ -7,13 +8,10 @@ import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
-import com.example.codebasearchaeologist.service.DocumentationService;
-import com.example.codebasearchaeologist.service.PdfExportService;
-import com.example.codebasearchaeologist.service.ProjectService;
+import com.example.codebasearchaeologist.service.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import com.example.codebasearchaeologist.service.MarkdownExportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,17 +29,19 @@ public class ProjectController {
     private final DocumentationService documentationService;
     private final MarkdownExportService markdownExportService;
     private final PdfExportService pdfExportService;
+    private final ClassDetailsService classDetailsService;
 
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
         this.documentationService = documentationService;
         this.markdownExportService = markdownExportService;
         this.pdfExportService = pdfExportService;
+        this.classDetailsService = classDetailsService;
     }
 
     @PostMapping
@@ -106,4 +106,10 @@ public class ProjectController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
     }
+
+    @GetMapping("/{id}/classes/{classId}")
+    public ClassDetailsDto getClassDetails(@PathVariable Long id, @PathVariable Long classId) {
+        return classDetailsService.getClassDetails(classId);
+    }
+
 }
