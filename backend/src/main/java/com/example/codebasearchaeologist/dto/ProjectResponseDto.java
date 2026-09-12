@@ -11,15 +11,18 @@ public class ProjectResponseDto {
     private String repositoryUrl;
     private LocalDateTime uploadedAt;
     private ProjectStatus status;
+    private String errorMessage;
 
     public ProjectResponseDto(Long projectId, String projectName, String description,
-                              String repositoryUrl, LocalDateTime uploadedAt, ProjectStatus status) {
+                              String repositoryUrl, LocalDateTime uploadedAt, ProjectStatus status, String errorMessage) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.description = description;
         this.repositoryUrl = repositoryUrl;
         this.uploadedAt = uploadedAt;
         this.status = status;
+
+        this.errorMessage = errorMessage;
     }
 
     public Long getProjectId() { return projectId; }
@@ -28,4 +31,5 @@ public class ProjectResponseDto {
     public String getRepositoryUrl() { return repositoryUrl; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public ProjectStatus getStatus() { return status; }
+    public String getErrorMessage() { return errorMessage; }
 }

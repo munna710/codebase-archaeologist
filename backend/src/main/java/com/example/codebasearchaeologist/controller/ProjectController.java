@@ -1,6 +1,7 @@
 package com.example.codebasearchaeologist.controller;
 
 import com.example.codebasearchaeologist.dto.ClassDetailsDto;
+import com.example.codebasearchaeologist.dto.ComplexityRankingDto;
 import com.example.codebasearchaeologist.dto.ProjectRequestDto;
 import com.example.codebasearchaeologist.dto.ProjectResponseDto;
 import com.example.codebasearchaeologist.entity.Dependency;
@@ -61,9 +62,10 @@ public class ProjectController {
         return projectService.getProjectById(id);
     }
 
+
     @PostMapping("/{id}/analyze")
     public ProjectResponseDto analyzeProject(@PathVariable Long id) {
-        return projectService.analyzeProject(id);
+        return projectService.startAnalysis(id);
     }
 
 
@@ -116,6 +118,11 @@ public class ProjectController {
     @GetMapping("/{id}/classes/ranking")
     public List<ClassRankingProjection> getClassRanking(@PathVariable Long id) {
         return classDetailsService.getMostDependedUponClasses(id);
+    }
+
+    @GetMapping("/{id}/classes/complexity")
+    public List<ComplexityRankingDto> getComplexityRanking(@PathVariable Long id) {
+        return classDetailsService.getMostComplexClasses(id);
     }
 
 }

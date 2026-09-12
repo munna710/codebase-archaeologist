@@ -54,4 +54,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleClassNotFound(ClassNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+
+    @ExceptionHandler(AnalysisInProgressException.class)
+    public ResponseEntity<ErrorResponseDto> handleAnalysisInProgress(AnalysisInProgressException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }

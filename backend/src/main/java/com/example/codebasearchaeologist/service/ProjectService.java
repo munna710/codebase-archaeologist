@@ -10,6 +10,7 @@ import com.example.codebasearchaeologist.entity.Dependency;
 import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.entity.Project;
 import com.example.codebasearchaeologist.entity.ProjectStatus;
+import com.example.codebasearchaeologist.exception.AnalysisInProgressException;
 import com.example.codebasearchaeologist.exception.DuplicateProjectException;
 import com.example.codebasearchaeologist.exception.ProjectNotFoundException;
 import com.example.codebasearchaeologist.exception.RepositoryDownloadException;
@@ -42,6 +43,7 @@ public class ProjectService {
     private final CodeExtractor codeExtractor;
     private final DependencyAnalyzer dependencyAnalyzer;
     private final DependencyRepository dependencyRepository;
+    private final AnalysisOrchestrator analysisOrchestrator;
 
 
 
@@ -52,7 +54,7 @@ public class ProjectService {
                           JavaCodeParser javaCodeParser,
                           CodeExtractor codeExtractor,
                           DependencyAnalyzer dependencyAnalyzer,
-                          DependencyRepository dependencyRepository) {
+                          DependencyRepository dependencyRepository, AnalysisOrchestrator analysisOrchestrator) {
         this.projectRepository = projectRepository;
         this.javaFileRepository = javaFileRepository;
         this.repositoryDownloader = repositoryDownloader;
@@ -61,13 +63,30 @@ public class ProjectService {
         this.codeExtractor = codeExtractor;
         this.dependencyAnalyzer = dependencyAnalyzer;
         this.dependencyRepository = dependencyRepository;
+        this.analysisOrchestrator = analysisOrchestrator;
     }
 
 
     public ProjectResponseDto createProject(ProjectRequestDto requestDto) {
-        if (projectRepository.existsByRepositoryUrl(requestDto.getRepositoryUrl())) {
-            throw new DuplicateProjectException(requestDto.getRepositoryUrl());
+        Optional<Project> existing = projectRepository.findByRepositoryUrl(requestDto.getRepositoryUrl());
+
+        if (existing.isPresent()) {
+            Project existingProject = existing.get();
+
+            boolean canRetry = existingProject.getStatus() == ProjectStatus.FAILED;
+
+            if (!canRetry) {
+                throw new DuplicateProjectException(requestDto.getRepositoryUrl());
+            }
+
+            // Previously failed — reset it so the user can retry instead of being stuck.
+            existingProject.setStatus(ProjectStatus.PENDING);
+            existingProject.setErrorMessage(null);
+            existingProject.setUploadedAt(LocalDateTime.now());
+            Project saved = projectRepository.save(existingProject);
+            return toResponseDto(saved);
         }
+
         Project project = new Project();
 
         String[] parts = requestDto.getRepositoryUrl().split("/");
@@ -83,69 +102,28 @@ public class ProjectService {
         return toResponseDto(saved);
     }
 
-    public ProjectResponseDto analyzeProject(Long id) {
+
+    // add analysisOrchestrator to the constructor, remove the analyzer/downloader
+    // fields that moved into AnalysisOrchestrator (repositoryDownloader, javaFileScanner,
+    // javaCodeParser, codeExtractor, dependencyAnalyzer, dependencyRepository) —
+    // ProjectService no longer needs them directly.
+
+    public ProjectResponseDto startAnalysis(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException(id));
 
-        project.setStatus(ProjectStatus.ANALYZING);
+        boolean alreadyInProgress = project.getStatus() == ProjectStatus.CLONING
+                || project.getStatus() == ProjectStatus.PARSING
+                || project.getStatus() == ProjectStatus.ANALYZING_DEPENDENCIES;
+
+        if (alreadyInProgress) {
+            throw new AnalysisInProgressException(id);
+        }
+
+        project.setStatus(ProjectStatus.PENDING);
         projectRepository.save(project);
 
-        try {
-            File clonedDir = repositoryDownloader.cloneRepository(project.getRepositoryUrl(), project.getProjectId());
-            List<File> javaFiles = javaFileScanner.findJavaFiles(clonedDir);
-
-            if (javaFiles.isEmpty()) {
-                project.setStatus(ProjectStatus.FAILED);
-                projectRepository.save(project);
-                throw new RuntimeException("No Java files found in this repository.");
-            }
-
-            JavaParser parser = javaCodeParser.buildParser(clonedDir);
-
-            // Track saved JavaClass entities by simple name, and their original AST
-            // declarations, so we can run dependency analysis across all files afterward.
-            Map<String, JavaClass> classesByName = new HashMap<>();
-            Map<JavaClass, ClassOrInterfaceDeclaration> declarationsByClass = new HashMap<>();
-
-            int parsedCount = 0;
-            for (File javaFile : javaFiles) {
-                Optional<CompilationUnit> cuOpt = javaCodeParser.parseFile(parser, javaFile);
-                if (cuOpt.isEmpty()) {
-                    continue;
-                }
-
-                CompilationUnit cu = cuOpt.get();
-                JavaFile extractedFile = codeExtractor.extractFile(cu, javaFile, project);
-                javaFileRepository.save(extractedFile); // cascades: saves classes + methods, assigns IDs
-                parsedCount++;
-
-                // Pair each saved JavaClass with its original AST declaration for dependency analysis.
-                List<ClassOrInterfaceDeclaration> declarations = cu.findAll(ClassOrInterfaceDeclaration.class);
-                for (JavaClass savedClass : extractedFile.getClasses()) {
-                    declarations.stream()
-                            .filter(d -> d.getNameAsString().equals(savedClass.getClassName()))
-                            .findFirst()
-                            .ifPresent(decl -> declarationsByClass.put(savedClass, decl));
-
-                    classesByName.put(savedClass.getClassName(), savedClass);
-                }
-            }
-
-            System.out.println("Saved " + parsedCount + " / " + javaFiles.size() + " files to database");
-
-            // Now that all classes across all files are known, analyze dependencies between them.
-            List<Dependency> dependencies = dependencyAnalyzer.analyzeDependencies(classesByName, declarationsByClass);
-            dependencyRepository.saveAll(dependencies);
-            System.out.println("Found and saved " + dependencies.size() + " dependencies");
-
-            project.setStatus(ProjectStatus.COMPLETED);
-            projectRepository.save(project);
-
-        } catch (RepositoryDownloadException e) {
-            project.setStatus(ProjectStatus.FAILED);
-            projectRepository.save(project);
-            throw e;
-        }
+        analysisOrchestrator.runAnalysis(id); // fire-and-forget: returns immediately
 
         return toResponseDto(project);
     }
@@ -170,7 +148,8 @@ public class ProjectService {
                 project.getDescription(),
                 project.getRepositoryUrl(),
                 project.getUploadedAt(),
-                project.getStatus()
+                project.getStatus(),
+                project.getErrorMessage()
         );
     }
 }

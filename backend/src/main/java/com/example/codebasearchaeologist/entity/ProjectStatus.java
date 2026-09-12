@@ -2,7 +2,9 @@ package com.example.codebasearchaeologist.entity;
 
 public enum ProjectStatus {
     PENDING,
-    ANALYZING,
+    CLONING,
+    PARSING,
+    ANALYZING_DEPENDENCIES,
     COMPLETED,
     FAILED
 }

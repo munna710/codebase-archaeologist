@@ -24,6 +24,9 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
+    @Column(columnDefinition = "TEXT")
+    private String errorMessage;
+
     public Project() {
     }
 
@@ -76,4 +79,7 @@ public class Project {
     public void setStatus(ProjectStatus status) {
         this.status = status;
     }
+
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 }
