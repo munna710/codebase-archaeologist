@@ -8,6 +8,7 @@ import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.DocumentationRepository;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
 import org.springframework.stereotype.Service;
+import com.example.codebasearchaeologist.exception.ClassNotFoundException;
 
 import java.util.List;
 
