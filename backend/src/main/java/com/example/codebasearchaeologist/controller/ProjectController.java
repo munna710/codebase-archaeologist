@@ -6,6 +6,7 @@ import com.example.codebasearchaeologist.dto.ProjectResponseDto;
 import com.example.codebasearchaeologist.entity.Dependency;
 import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.JavaFile;
+import com.example.codebasearchaeologist.repository.ClassRankingProjection;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
 import com.example.codebasearchaeologist.service.*;
@@ -110,6 +111,11 @@ public class ProjectController {
     @GetMapping("/{id}/classes/{classId}")
     public ClassDetailsDto getClassDetails(@PathVariable Long id, @PathVariable Long classId) {
         return classDetailsService.getClassDetails(classId);
+    }
+
+    @GetMapping("/{id}/classes/ranking")
+    public List<ClassRankingProjection> getClassRanking(@PathVariable Long id) {
+        return classDetailsService.getMostDependedUponClasses(id);
     }
 
 }

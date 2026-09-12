@@ -9,6 +9,7 @@ import com.example.codebasearchaeologist.repository.DocumentationRepository;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
 import org.springframework.stereotype.Service;
 import com.example.codebasearchaeologist.exception.ClassNotFoundException;
+import com.example.codebasearchaeologist.repository.ClassRankingProjection;
 
 import java.util.List;
 
@@ -66,5 +67,9 @@ public class ClassDetailsService {
                 incomingDtos,
                 aiExplanation
         );
+    }
+
+    public List<ClassRankingProjection> getMostDependedUponClasses(Long projectId) {
+        return dependencyRepository.findMostDependedUponClasses(projectId);
     }
 }
