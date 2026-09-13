@@ -1,9 +1,6 @@
 package com.example.codebasearchaeologist.controller;
 
-import com.example.codebasearchaeologist.dto.ClassDetailsDto;
-import com.example.codebasearchaeologist.dto.ComplexityRankingDto;
-import com.example.codebasearchaeologist.dto.ProjectRequestDto;
-import com.example.codebasearchaeologist.dto.ProjectResponseDto;
+import com.example.codebasearchaeologist.dto.*;
 import com.example.codebasearchaeologist.entity.Dependency;
 import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.JavaFile;
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -32,11 +30,15 @@ public class ProjectController {
     private final MarkdownExportService markdownExportService;
     private final PdfExportService pdfExportService;
     private final ClassDetailsService classDetailsService;
+    private final CodeSearchService codeSearchService;
+    private final ChatService chatService;
+
+
 
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
@@ -44,6 +46,9 @@ public class ProjectController {
         this.markdownExportService = markdownExportService;
         this.pdfExportService = pdfExportService;
         this.classDetailsService = classDetailsService;
+        this.codeSearchService = codeSearchService;
+        this.chatService = chatService;
+
     }
 
     @PostMapping
@@ -125,4 +130,13 @@ public class ProjectController {
         return classDetailsService.getMostComplexClasses(id);
     }
 
+    @GetMapping("/{id}/search")
+    public List<RelevantClassDto> searchClasses(@PathVariable Long id, @RequestParam String question) {
+        return codeSearchService.findRelevantClasses(id, question);
+    }
+
+    @PostMapping("/{id}/chat")
+    public ChatAnswerDto askQuestion(@PathVariable Long id, @Valid @RequestBody ChatQuestionDto request) {
+        return chatService.answerQuestion(id, request.getQuestion());
+    }
 }
