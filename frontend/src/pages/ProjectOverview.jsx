@@ -86,6 +86,8 @@ function ProjectOverview() {
             <Link to={`/projects/${id}/dependencies`}>View Dependency Graph</Link>
             {' | '}
             <Link to={`/projects/${id}/documentation`}>View Documentation</Link>
+            {' | '}
+            <Link to={`/projects/${id}/chat`}>Ask a Question</Link>
           </nav>
 
           <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', flexWrap: 'wrap' }}>

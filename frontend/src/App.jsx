@@ -7,6 +7,7 @@ import DependencyGraph from './pages/DependencyGraph';
 import Documentation from './pages/Documentation';
 import CodeExplorer from './pages/CodeExplorer';
 import ClassDetails from './pages/ClassDetails';
+import Chat from './pages/Chat';
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/projects/:id/documentation" element={<Documentation />} />
         <Route path="/projects/:id/explorer" element={<CodeExplorer />} />
         <Route path="/projects/:id/classes/:classId" element={<ClassDetails />} />
+        <Route path="/projects/:id/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );
