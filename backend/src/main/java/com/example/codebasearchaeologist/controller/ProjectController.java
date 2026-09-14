@@ -33,13 +33,14 @@ public class ProjectController {
     private final CodeSearchService codeSearchService;
     private final ChatService chatService;
     private final CodeSmellService codeSmellService;
+    private final BugContextService bugContextService;
 
 
 
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService, BugContextService bugContextService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
@@ -51,6 +52,7 @@ public class ProjectController {
         this.chatService = chatService;
 
         this.codeSmellService = codeSmellService;
+        this.bugContextService = bugContextService;
     }
 
     @PostMapping
@@ -145,5 +147,10 @@ public class ProjectController {
     @GetMapping("/{id}/code-smells")
     public List<CodeSmellDto> getCodeSmells(@PathVariable Long id) {
         return codeSmellService.detectSmells(id);
+    }
+
+    @PostMapping("/{id}/debug")
+    public BugContextDto analyzeError(@PathVariable Long id, @Valid @RequestBody StackTraceRequestDto request) {
+        return bugContextService.analyzeError(id, request.getStackTrace());
     }
 }

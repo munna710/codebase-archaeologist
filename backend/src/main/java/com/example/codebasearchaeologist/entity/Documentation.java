@@ -1,6 +1,9 @@
 package com.example.codebasearchaeologist.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,6 +31,7 @@ public class Documentation {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @JdbcTypeCode(SqlTypes.VECTOR)
     @Column(columnDefinition = "vector(768)")
     private float[] embedding;
 
