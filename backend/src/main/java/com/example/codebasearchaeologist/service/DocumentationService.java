@@ -1,5 +1,6 @@
 package com.example.codebasearchaeologist.service;
 
+import com.example.codebasearchaeologist.ai.OllamaEmbeddingClient;
 import com.example.codebasearchaeologist.ai.OpenAiClient;
 import com.example.codebasearchaeologist.ai.PromptBuilder;
 import com.example.codebasearchaeologist.analyzer.SourceCodeReader;
@@ -23,14 +24,15 @@ public class DocumentationService {
     private final OpenAiClient openAiClient;
     private final PromptBuilder promptBuilder;
     private final SourceCodeReader sourceCodeReader;
+    private final OllamaEmbeddingClient ollamaEmbeddingClient;
 
     public DocumentationService(ProjectRepository projectRepository,
-                                 JavaClassRepository javaClassRepository,
-                                 DependencyRepository dependencyRepository,
-                                 DocumentationRepository documentationRepository,
-                                 OpenAiClient openAiClient,
-                                 PromptBuilder promptBuilder,
-                                 SourceCodeReader sourceCodeReader) {
+                                JavaClassRepository javaClassRepository,
+                                DependencyRepository dependencyRepository,
+                                DocumentationRepository documentationRepository,
+                                OpenAiClient openAiClient,
+                                PromptBuilder promptBuilder,
+                                SourceCodeReader sourceCodeReader, OllamaEmbeddingClient ollamaEmbeddingClient) {
         this.projectRepository = projectRepository;
         this.javaClassRepository = javaClassRepository;
         this.dependencyRepository = dependencyRepository;
@@ -38,6 +40,7 @@ public class DocumentationService {
         this.openAiClient = openAiClient;
         this.promptBuilder = promptBuilder;
         this.sourceCodeReader = sourceCodeReader;
+        this.ollamaEmbeddingClient = ollamaEmbeddingClient;
     }
 
     /**
@@ -54,8 +57,6 @@ public class DocumentationService {
         String systemPrompt = promptBuilder.buildSystemPrompt();
 
         for (JavaClass javaClass : allClasses) {
-            // Skip classes that already have documentation, so re-running this
-            // endpoint doesn't waste API calls / money on unchanged classes.
             if (documentationRepository.findByJavaClass_ClassId(javaClass.getClassId()).isPresent()) {
                 continue;
             }
@@ -75,6 +76,16 @@ public class DocumentationService {
             doc.setContent(explanation);
             doc.setCreatedAt(LocalDateTime.now());
 
+            try {
+                float[] embedding = ollamaEmbeddingClient.embed(explanation);
+                doc.setEmbedding(embedding);
+            } catch (Exception e) {
+                // Embedding is an enhancement, not core functionality — if Ollama
+                // isn't running, documentation generation should still succeed.
+                System.err.println("Failed to generate embedding for class "
+                        + javaClass.getClassName() + ": " + e.getMessage());
+            }
+
             documentationRepository.save(doc);
 
             System.out.println("Generated documentation for class: " + javaClass.getClassName());
@@ -86,4 +97,6 @@ public class DocumentationService {
     public List<Documentation> getDocumentationForProject(Long projectId) {
         return documentationRepository.findByProject_ProjectId(projectId);
     }
+
+
 }

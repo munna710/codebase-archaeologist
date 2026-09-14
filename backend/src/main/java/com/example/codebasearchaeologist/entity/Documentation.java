@@ -28,6 +28,13 @@ public class Documentation {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(columnDefinition = "vector(768)")
+    private float[] embedding;
+
+    public float[] getEmbedding() { return embedding; }
+    public void setEmbedding(float[] embedding) { this.embedding = embedding; }
+
+
     private LocalDateTime createdAt;
 
     public Documentation() {

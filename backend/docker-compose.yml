@@ -1,7 +1,7 @@
 services:
 
   postgres:
-    image: postgres:17
+    image:  pgvector/pgvector:pg17
     container_name: codebase-postgres
     restart: unless-stopped
     environment:

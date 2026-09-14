@@ -1,11 +1,13 @@
 package com.example.codebasearchaeologist.service;
 
+import com.example.codebasearchaeologist.ai.OllamaEmbeddingClient;
 import com.example.codebasearchaeologist.dto.RelevantClassDto;
 import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.JavaClass;
 import com.example.codebasearchaeologist.entity.JavaMethod;
 import com.example.codebasearchaeologist.repository.DocumentationRepository;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
+import com.example.codebasearchaeologist.repository.SemanticSearchResult;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,14 +26,17 @@ public class CodeSearchService {
 
     private final JavaClassRepository javaClassRepository;
     private final DocumentationRepository documentationRepository;
+    private final OllamaEmbeddingClient ollamaEmbeddingClient;
+
 
     public CodeSearchService(JavaClassRepository javaClassRepository,
-                              DocumentationRepository documentationRepository) {
+                             DocumentationRepository documentationRepository, OllamaEmbeddingClient ollamaEmbeddingClient) {
         this.javaClassRepository = javaClassRepository;
         this.documentationRepository = documentationRepository;
+        this.ollamaEmbeddingClient = ollamaEmbeddingClient;
     }
 
-    public List<RelevantClassDto> findRelevantClasses(Long projectId, String question) {
+    public List<RelevantClassDto> findByKeywords(Long projectId, String question) {
         List<String> keywords = extractKeywords(question);
 
         List<JavaClass> allClasses = javaClassRepository.findByJavaFile_Project_ProjectId(projectId);
@@ -114,5 +119,69 @@ public class CodeSearchService {
     private String truncate(String text, int maxLength) {
         if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength) + "...";
+    }
+
+    public List<RelevantClassDto> findRelevantClasses(Long projectId, String question) {
+        List<RelevantClassDto> keywordResults = findByKeywords(projectId, question); // your existing logic, renamed
+
+        List<RelevantClassDto> semanticResults = findBySemantic(projectId, question);
+
+        return mergeResults(keywordResults, semanticResults);
+    }
+
+    private List<RelevantClassDto> findBySemantic(Long projectId, String question) {
+        try {
+            float[] queryEmbedding = ollamaEmbeddingClient.embed(question);
+            String vectorLiteral = ollamaEmbeddingClient.toVectorLiteral(queryEmbedding);
+
+            List<SemanticSearchResult> results = documentationRepository
+                    .findSimilarDocumentation(projectId, vectorLiteral, MAX_RESULTS);
+
+            // Convert distance (lower = better) to a comparable score (higher = better),
+            // scaled to roughly match the range of our keyword scores.
+            return results.stream()
+                    .map(r -> {
+                        JavaClass javaClass = javaClassRepository.findById(r.getClassId()).orElse(null);
+                        if (javaClass == null) return null;
+
+                        int score = (int) Math.round((1 - r.getDistance()) * 10);
+
+                        return new RelevantClassDto(
+                                javaClass.getClassId(),
+                                javaClass.getClassName(),
+                                javaClass.getPackageName(),
+                                truncate(r.getContent(), 300),
+                                score
+                        );
+                    })
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+
+        } catch (Exception e) {
+            // Ollama unavailable or no embeddings generated yet — fall back to keyword-only.
+            System.err.println("Semantic search unavailable: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    private List<RelevantClassDto> mergeResults(List<RelevantClassDto> keywordResults,
+                                                List<RelevantClassDto> semanticResults) {
+        Map<Long, RelevantClassDto> merged = new LinkedHashMap<>();
+
+        // Keyword matches first — exact term matches are a strong, precise signal.
+        for (RelevantClassDto dto : keywordResults) {
+            merged.put(dto.getClassId(), dto);
+        }
+
+        // Add semantic matches not already found by keyword search — these catch
+        // conceptually related classes that don't share exact vocabulary.
+        for (RelevantClassDto dto : semanticResults) {
+            merged.putIfAbsent(dto.getClassId(), dto);
+        }
+
+        return merged.values().stream()
+                .sorted((a, b) -> Integer.compare(b.getRelevanceScore(), a.getRelevanceScore()))
+                .limit(MAX_RESULTS)
+                .toList();
     }
 }
