@@ -6,10 +6,7 @@ import com.example.codebasearchaeologist.analyzer.JavaFileScanner;
 import com.example.codebasearchaeologist.analyzer.RepositoryDownloader;
 import com.example.codebasearchaeologist.dto.ProjectRequestDto;
 import com.example.codebasearchaeologist.dto.ProjectResponseDto;
-import com.example.codebasearchaeologist.entity.Dependency;
-import com.example.codebasearchaeologist.entity.JavaFile;
-import com.example.codebasearchaeologist.entity.Project;
-import com.example.codebasearchaeologist.entity.ProjectStatus;
+import com.example.codebasearchaeologist.entity.*;
 import com.example.codebasearchaeologist.exception.AnalysisInProgressException;
 import com.example.codebasearchaeologist.exception.DuplicateProjectException;
 import com.example.codebasearchaeologist.exception.ProjectNotFoundException;
@@ -21,9 +18,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import org.springframework.stereotype.Service;
 import com.example.codebasearchaeologist.analyzer.DependencyAnalyzer;
 import com.example.codebasearchaeologist.entity.Dependency;
-import com.example.codebasearchaeologist.entity.JavaClass;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,5 +152,44 @@ public class ProjectService {
                 project.getStatus(),
                 project.getErrorMessage()
         );
+    }
+
+    private static final Path UPLOAD_STAGING_DIR = Path.of(System.getProperty("java.io.tmpdir"), "zip-uploads");
+
+    public ProjectResponseDto createProjectFromZip(MultipartFile file, String description) {
+        if (file == null || file.isEmpty()) {
+            throw new RepositoryDownloadException("No ZIP file was provided.");
+        }
+        if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
+            throw new RepositoryDownloadException("Uploaded file must be a .zip file.");
+        }
+
+        String derivedName = file.getOriginalFilename().replace(".zip", "");
+
+        Project project = new Project();
+        project.setProjectName(derivedName);
+        project.setDescription(description);
+        project.setRepositoryUrl(null);
+        project.setSourceType(ProjectSourceType.ZIP_UPLOAD);
+        project.setUploadedAt(LocalDateTime.now());
+        project.setStatus(ProjectStatus.PENDING);
+
+        Project saved = projectRepository.save(project);
+
+        // Copy the upload's bytes to a durable location now, synchronously,
+        // since the background analysis thread will need them later and
+        // Spring's MultipartFile temp storage won't survive past this request.
+        try {
+            Files.createDirectories(UPLOAD_STAGING_DIR);
+            Path stagedFile = UPLOAD_STAGING_DIR.resolve("project-" + saved.getProjectId() + ".zip");
+            file.transferTo(stagedFile);
+        } catch (IOException e) {
+            saved.setStatus(ProjectStatus.FAILED);
+            saved.setErrorMessage("Failed to save uploaded file: " + e.getMessage());
+            projectRepository.save(saved);
+            throw new RepositoryDownloadException("Failed to save uploaded file.", e);
+        }
+
+        return toResponseDto(saved);
     }
 }

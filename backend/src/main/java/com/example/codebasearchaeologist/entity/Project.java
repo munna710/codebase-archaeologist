@@ -16,7 +16,7 @@ public class Project {
 
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String repositoryUrl;
 
     private LocalDateTime uploadedAt;
@@ -26,6 +26,9 @@ public class Project {
 
     @Column(columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Enumerated(EnumType.STRING)
+    private ProjectSourceType sourceType;
 
     public Project() {
     }
@@ -82,4 +85,7 @@ public class Project {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public ProjectSourceType getSourceType() { return sourceType; }
+    public void setSourceType(ProjectSourceType sourceType) { this.sourceType = sourceType; }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
@@ -152,5 +153,13 @@ public class ProjectController {
     @PostMapping("/{id}/debug")
     public BugContextDto analyzeError(@PathVariable Long id, @Valid @RequestBody StackTraceRequestDto request) {
         return bugContextService.analyzeError(id, request.getStackTrace());
+    }
+
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProjectResponseDto createProjectFromZip(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "description", required = false) String description) {
+        return projectService.createProjectFromZip(file, description);
     }
 }

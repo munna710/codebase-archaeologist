@@ -90,7 +90,10 @@ function ProjectOverview() {
             <Link to={`/projects/${id}/chat`}>Ask a Question</Link>
             {' | '}
             <Link to={`/projects/${id}/code-smells`}>Code Smells</Link>
+            {' | '}
+            <Link to={`/projects/${id}/debug`}>Debug an Error</Link>
           </nav>
+
 
           <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', flexWrap: 'wrap' }}>
             {ranking.length > 0 && (

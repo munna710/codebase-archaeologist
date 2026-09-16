@@ -9,6 +9,7 @@ import CodeExplorer from './pages/CodeExplorer';
 import ClassDetails from './pages/ClassDetails';
 import Chat from './pages/Chat';
 import CodeSmells from './pages/CodeSmells';
+import Debug from './pages/Debug';
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
         <Route path="/projects/:id/classes/:classId" element={<ClassDetails />} />
         <Route path="/projects/:id/chat" element={<Chat />} />
         <Route path="/projects/:id/code-smells" element={<CodeSmells />} />
+        <Route path="/projects/:id/debug" element={<Debug />} />
       </Routes>
     </BrowserRouter>
   );

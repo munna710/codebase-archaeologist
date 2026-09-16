@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 @Service
@@ -26,15 +28,16 @@ public class AnalysisOrchestrator {
     private final JavaCodeParser javaCodeParser;
     private final CodeExtractor codeExtractor;
     private final DependencyAnalyzer dependencyAnalyzer;
+    private final ZipExtractor zipExtractor;
 
     public AnalysisOrchestrator(ProjectRepository projectRepository,
-                                 JavaFileRepository javaFileRepository,
-                                 DependencyRepository dependencyRepository,
-                                 RepositoryDownloader repositoryDownloader,
-                                 JavaFileScanner javaFileScanner,
-                                 JavaCodeParser javaCodeParser,
-                                 CodeExtractor codeExtractor,
-                                 DependencyAnalyzer dependencyAnalyzer) {
+                                JavaFileRepository javaFileRepository,
+                                DependencyRepository dependencyRepository,
+                                RepositoryDownloader repositoryDownloader,
+                                JavaFileScanner javaFileScanner,
+                                JavaCodeParser javaCodeParser,
+                                CodeExtractor codeExtractor,
+                                DependencyAnalyzer dependencyAnalyzer, ZipExtractor zipExtractor) {
         this.projectRepository = projectRepository;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
@@ -43,6 +46,7 @@ public class AnalysisOrchestrator {
         this.javaCodeParser = javaCodeParser;
         this.codeExtractor = codeExtractor;
         this.dependencyAnalyzer = dependencyAnalyzer;
+        this.zipExtractor = zipExtractor;
     }
 
     /**
@@ -66,17 +70,27 @@ public class AnalysisOrchestrator {
             project.setStatus(ProjectStatus.CLONING);
             projectRepository.save(project);
 
-            File clonedDir = repositoryDownloader.cloneRepository(project.getRepositoryUrl(), project.getProjectId());
+            File sourceDir;
+            if (project.getSourceType() == ProjectSourceType.ZIP_UPLOAD) {
+                Path stagedZip = Path.of(System.getProperty("java.io.tmpdir"), "zip-uploads",
+                        "project-" + projectId + ".zip");
+                if (!Files.exists(stagedZip)) {
+                    throw new RuntimeException("Uploaded ZIP file could not be found on the server.");
+                }
+                sourceDir = zipExtractor.extractZip(stagedZip.toFile(), projectId);
+            } else {
+                sourceDir = repositoryDownloader.cloneRepository(project.getRepositoryUrl(), project.getProjectId());
+            }
 
             project.setStatus(ProjectStatus.PARSING);
             projectRepository.save(project);
 
-            List<File> javaFiles = javaFileScanner.findJavaFiles(clonedDir);
+            List<File> javaFiles = javaFileScanner.findJavaFiles(sourceDir);
             if (javaFiles.isEmpty()) {
                 throw new RuntimeException("No Java files found in this repository.");
             }
 
-            JavaParser parser = javaCodeParser.buildParser(clonedDir);
+            JavaParser parser = javaCodeParser.buildParser(sourceDir);
 
             Map<String, JavaClass> classesByName = new HashMap<>();
             Map<JavaClass, ClassOrInterfaceDeclaration> declarationsByClass = new HashMap<>();
