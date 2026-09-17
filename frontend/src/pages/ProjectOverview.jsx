@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getProjectById } from '../api/projects';
 import { getClassRanking, getComplexityRanking } from '../api/classes';
 import { STATUS_STEPS, STATUS_LABELS, isInProgress } from '../utils/projectStatus';
+import { reanalyzeProject } from '../api/projects';
 
 function ProjectOverview() {
   const { id } = useParams();
@@ -10,6 +11,46 @@ function ProjectOverview() {
   const [ranking, setRanking] = useState([]);
   const [complexity, setComplexity] = useState([]);
   const [error, setError] = useState(null);
+  const [reanalyzing, setReanalyzing] = useState(false);
+  const [pollTrigger, setPollTrigger] = useState(0);
+
+  useEffect(() => {
+  let intervalId;
+
+  const poll = () => {
+    getProjectById(id)
+      .then((data) => {
+        setProject(data);
+        if (!isInProgress(data.status)) {
+          clearInterval(intervalId);
+        }
+      })
+      .catch(() => {
+        setError('Failed to load project.');
+        clearInterval(intervalId);
+      });
+  };
+
+  poll();
+  intervalId = setInterval(poll, 2000);
+
+  return () => clearInterval(intervalId);
+}, [id, pollTrigger]); // <-- pollTrigger added here
+
+
+ const handleReanalyze = async () => {
+  setReanalyzing(true);
+  try {
+    await reanalyzeProject(id);
+    setRanking([]);
+    setComplexity([]);
+    setPollTrigger((prev) => prev + 1); // restarts the polling effect
+  } catch (err) {
+    setError(err.response?.data?.message || 'Failed to start re-analysis.');
+  } finally {
+    setReanalyzing(false);
+  }
+};
 
   // Poll for status while analysis is in progress; stop once it reaches a
   // terminal state (COMPLETED or FAILED).
@@ -57,7 +98,11 @@ console.log('SOURCE TYPE:', project.sourceType);
     <div>
       <h1>{project.projectName}</h1>
       <p>Repository: {project.repositoryUrl}</p>
-
+      {(project.status === 'COMPLETED' || project.status === 'FAILED') && (
+        <button onClick={handleReanalyze} disabled={reanalyzing} style={{ marginBottom: '1rem' }}>
+          {reanalyzing ? 'Starting...' : 'Re-analyze'}
+        </button>
+      )}
       {isInProgress(project.status) && (
         <div style={{ margin: '1.5rem 0' }}>
           <p><strong>{STATUS_LABELS[project.status]}...</strong></p>

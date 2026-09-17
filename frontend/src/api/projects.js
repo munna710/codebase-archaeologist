@@ -33,3 +33,8 @@ export const createProjectFromZip = async (file, description) => {
   });
   return response.data;
 };
+
+export const reanalyzeProject = async (id) => {
+  const response = await apiClient.post(`/projects/${id}/reanalyze`);
+  return response.data;
+};
