@@ -1,4 +1,9 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate} from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ProjectList from './pages/ProjectList';
 import AddProject from './pages/AddProject';
@@ -13,31 +18,59 @@ import Debug from './pages/Debug';
 import Commits from './pages/Commits';
 
 
-function App() {
-  return (
-    <BrowserRouter>
-      <nav>
-        <Link to="/">Dashboard</Link>{' | '}
-        <Link to="/projects">Projects</Link>{' | '}
-        <Link to="/projects/new">Add Project</Link>
-      </nav>
+function NavBar() {
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
 
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/projects" element={<ProjectList />} />
-        <Route path="/projects/new" element={<AddProject />} />
-        <Route path="/projects/:id" element={<ProjectOverview />} />
-        <Route path="/projects/:id/dependencies" element={<DependencyGraph />} />
-        <Route path="/projects/:id/documentation" element={<Documentation />} />
-        <Route path="/projects/:id/explorer" element={<CodeExplorer />} />
-        <Route path="/projects/:id/classes/:classId" element={<ClassDetails />} />
-        <Route path="/projects/:id/chat" element={<Chat />} />
-        <Route path="/projects/:id/code-smells" element={<CodeSmells />} />
-        <Route path="/projects/:id/debug" element={<Debug />} />
-        <Route path="/projects/:id/commits" element={<Commits />} />
-      </Routes>
-    </BrowserRouter>
+  const handleLogout = () => {
+    logoutUser();
+    navigate('/login');
+  };
+
+  return (
+    <nav>
+      <Link to="/">Dashboard</Link>{' | '}
+      <Link to="/projects">Projects</Link>{' | '}
+      <Link to="/projects/new">Add Project</Link>
+      {user && (
+        <span style={{ float: 'right' }}>
+          {user.name} · <button onClick={handleLogout} style={{ padding: '0.2rem 0.6rem' }}>Log Out</button>
+        </span>
+      )}
+    </nav>
   );
 }
 
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/projects" element={<ProtectedRoute><ProjectList /></ProtectedRoute>} />
+      <Route path="/projects/new" element={<ProtectedRoute><AddProject /></ProtectedRoute>} />
+      <Route path="/projects/:id" element={<ProtectedRoute><ProjectOverview /></ProtectedRoute>} />
+      <Route path="/projects/:id/explorer" element={<ProtectedRoute><CodeExplorer /></ProtectedRoute>} />
+      <Route path="/projects/:id/classes/:classId" element={<ProtectedRoute><ClassDetails /></ProtectedRoute>} />
+      <Route path="/projects/:id/dependencies" element={<ProtectedRoute><DependencyGraph /></ProtectedRoute>} />
+      <Route path="/projects/:id/documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
+      <Route path="/projects/:id/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+      <Route path="/projects/:id/code-smells" element={<ProtectedRoute><CodeSmells /></ProtectedRoute>} />
+      <Route path="/projects/:id/debug" element={<ProtectedRoute><Debug /></ProtectedRoute>} />
+      <Route path="/projects/:id/commits" element={<ProtectedRoute><Commits /></ProtectedRoute>} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <NavBar />
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
 export default App;
