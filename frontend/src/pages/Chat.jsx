@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { askQuestion } from '../api/chat';
+import MarkdownContent from '../components/MarkdownContent';
 
 function Chat() {
   const { id } = useParams();
@@ -231,12 +232,9 @@ function Chat() {
                 }}
               >
                 {/* AI answer */}
-                <div
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {entry.answer}
+                {/* AI answer */}
+                <div style={{ marginBottom: '0.75rem' }}>
+                <MarkdownContent content={entry.answer} />
                 </div>
 
                 {/* Related classes */}

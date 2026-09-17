@@ -19,3 +19,17 @@ export const analyzeProject = async (id) => {
   const response = await apiClient.post(`/projects/${id}/analyze`);
   return response.data;
 };
+
+
+export const createProjectFromZip = async (file, description) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (description) {
+    formData.append('description', description);
+  }
+
+  const response = await apiClient.post('/projects/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};

@@ -48,7 +48,12 @@ function ProjectOverview() {
   if (error) return <p>{error}</p>;
   if (!project) return <p>Loading...</p>;
 
+console.log('PROJECT:', project);
+console.log('SOURCE TYPE:', project.sourceType);
+
+
   return (
+
     <div>
       <h1>{project.projectName}</h1>
       <p>Repository: {project.repositoryUrl}</p>
@@ -92,6 +97,12 @@ function ProjectOverview() {
             <Link to={`/projects/${id}/code-smells`}>Code Smells</Link>
             {' | '}
             <Link to={`/projects/${id}/debug`}>Debug an Error</Link>
+            {project.sourceType === 'GITHUB' && (
+              <>
+                {' | '}
+                <Link to={`/projects/${id}/commits`}>Commit History</Link>
+              </>
+            )}
           </nav>
 
 

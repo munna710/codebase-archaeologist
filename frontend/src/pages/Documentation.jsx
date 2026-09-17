@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getDocumentation, generateDocumentation } from '../api/documentation';
+import MarkdownContent from '../components/MarkdownContent';
 
 function Documentation() {
   const { id } = useParams();
@@ -65,7 +66,7 @@ function Documentation() {
           style={{ border: '1px solid #ddd', padding: '1rem', margin: '1rem 0' }}
         >
           <h3>{doc.javaClass ? doc.javaClass.className : 'Project Overview'}</h3>
-          <p style={{ whiteSpace: 'pre-wrap' }}>{doc.content}</p>
+          <MarkdownContent content={doc.content} />
         </div>
       ))}
     </div>
