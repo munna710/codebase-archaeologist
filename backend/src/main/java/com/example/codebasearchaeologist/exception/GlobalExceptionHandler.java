@@ -59,4 +59,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleAnalysisInProgress(AnalysisInProgressException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(CommitHistoryUnavailableException.class)
+    public ResponseEntity<ErrorResponseDto> handleCommitHistoryUnavailable(CommitHistoryUnavailableException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 }

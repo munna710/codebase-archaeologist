@@ -35,13 +35,15 @@ public class ProjectController {
     private final ChatService chatService;
     private final CodeSmellService codeSmellService;
     private final BugContextService bugContextService;
+    private final CommitHistoryService commitHistoryService;
+
 
 
 
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService, BugContextService bugContextService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService, BugContextService bugContextService, CommitHistoryService commitHistoryService) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
@@ -54,6 +56,7 @@ public class ProjectController {
 
         this.codeSmellService = codeSmellService;
         this.bugContextService = bugContextService;
+        this.commitHistoryService = commitHistoryService;
     }
 
     @PostMapping
@@ -161,5 +164,15 @@ public class ProjectController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "description", required = false) String description) {
         return projectService.createProjectFromZip(file, description);
+    }
+
+    @GetMapping("/{id}/commits")
+    public List<CommitDto> getCommits(@PathVariable Long id) {
+        return commitHistoryService.listCommits(id);
+    }
+
+    @PostMapping("/{id}/commits/{commitId}/explain")
+    public DiffExplanationDto explainCommit(@PathVariable Long id, @PathVariable String commitId) {
+        return commitHistoryService.explainCommit(id, commitId);
     }
 }

@@ -84,6 +84,7 @@ public class ProjectService {
             existingProject.setStatus(ProjectStatus.PENDING);
             existingProject.setErrorMessage(null);
             existingProject.setUploadedAt(LocalDateTime.now());
+
             Project saved = projectRepository.save(existingProject);
             return toResponseDto(saved);
         }
@@ -96,6 +97,7 @@ public class ProjectService {
         project.setProjectName(derivedName);
         project.setDescription(requestDto.getDescription());
         project.setRepositoryUrl(requestDto.getRepositoryUrl());
+        project.setSourceType(ProjectSourceType.GITHUB);  // <-- ADD THIS
         project.setUploadedAt(LocalDateTime.now());
         project.setStatus(ProjectStatus.PENDING);
 
@@ -148,6 +150,7 @@ public class ProjectService {
                 project.getProjectName(),
                 project.getDescription(),
                 project.getRepositoryUrl(),
+                project.getSourceType(),
                 project.getUploadedAt(),
                 project.getStatus(),
                 project.getErrorMessage()

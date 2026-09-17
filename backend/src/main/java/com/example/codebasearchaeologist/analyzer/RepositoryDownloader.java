@@ -23,6 +23,10 @@ public class RepositoryDownloader {
     }
 
     public File cloneRepository(String repositoryUrl, Long projectId) {
+        return cloneRepository(repositoryUrl, projectId, 1);
+    }
+
+    public File cloneRepository(String repositoryUrl, Long projectId, int depth) {
         if (!isValidGitHubUrl(repositoryUrl)) {
             throw new RepositoryDownloadException("Invalid GitHub repository URL: " + repositoryUrl);
         }
@@ -39,7 +43,7 @@ public class RepositoryDownloader {
         try (Git git = Git.cloneRepository()
                 .setURI(repositoryUrl)
                 .setDirectory(targetDir)
-                .setDepth(1) // shallow clone: only latest commit, no full history
+                .setDepth(depth)
                 .call()) {
 
             return targetDir;
@@ -50,11 +54,5 @@ public class RepositoryDownloader {
             throw new RepositoryDownloadException("Failed to clone repository: " + e.getMessage(), e);
         }
     }
-    public void cleanup(File clonedDir) {
-        try {
-            org.apache.commons.io.FileUtils.deleteDirectory(clonedDir);
-        } catch (IOException e) {
-            System.err.println("Failed to clean up temp directory: " + clonedDir.getAbsolutePath());
-        }
-    }
+
 }
