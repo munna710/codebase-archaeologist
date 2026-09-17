@@ -21,6 +21,7 @@ import com.example.codebasearchaeologist.entity.Dependency;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.codebasearchaeologist.repository.DocumentationRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +46,7 @@ public class ProjectService {
     private final DependencyAnalyzer dependencyAnalyzer;
     private final DependencyRepository dependencyRepository;
     private final AnalysisOrchestrator analysisOrchestrator;
-
+    private final DocumentationRepository documentationRepository;
 
 
     public ProjectService(ProjectRepository projectRepository,
@@ -55,7 +56,7 @@ public class ProjectService {
                           JavaCodeParser javaCodeParser,
                           CodeExtractor codeExtractor,
                           DependencyAnalyzer dependencyAnalyzer,
-                          DependencyRepository dependencyRepository, AnalysisOrchestrator analysisOrchestrator) {
+                          DependencyRepository dependencyRepository, AnalysisOrchestrator analysisOrchestrator, DocumentationRepository documentationRepository) {
         this.projectRepository = projectRepository;
         this.javaFileRepository = javaFileRepository;
         this.repositoryDownloader = repositoryDownloader;
@@ -65,6 +66,7 @@ public class ProjectService {
         this.dependencyAnalyzer = dependencyAnalyzer;
         this.dependencyRepository = dependencyRepository;
         this.analysisOrchestrator = analysisOrchestrator;
+        this.documentationRepository = documentationRepository;
     }
 
 
@@ -194,5 +196,46 @@ public class ProjectService {
         }
 
         return toResponseDto(saved);
+    }
+
+    public ProjectResponseDto reanalyzeProject(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+
+//        assertOwnership(project);
+
+        boolean alreadyInProgress = project.getStatus() == ProjectStatus.CLONING
+                || project.getStatus() == ProjectStatus.PARSING
+                || project.getStatus() == ProjectStatus.ANALYZING_DEPENDENCIES;
+
+        if (alreadyInProgress) {
+            throw new AnalysisInProgressException(id);
+        }
+
+        // Order matters here: dependencies and documentation both hold foreign
+        // keys pointing at classes, so they must be deleted — and flushed to
+        // the database — before the classes (and the files that cascade-delete
+        // them) are removed, or PostgreSQL rejects the class deletion with a
+        // foreign key violation.
+        List<Dependency> existingDependencies = dependencyRepository.findBySourceClass_JavaFile_Project_ProjectId(id);
+        dependencyRepository.deleteAll(existingDependencies);
+        dependencyRepository.flush();
+
+        List<Documentation> existingDocs = documentationRepository.findByProject_ProjectId(id);
+        documentationRepository.deleteAll(existingDocs);
+        documentationRepository.flush();
+
+        List<JavaFile> existingFiles = javaFileRepository.findByProject_ProjectId(id);
+        javaFileRepository.deleteAll(existingFiles);
+        javaFileRepository.flush();
+
+        project.setStatus(ProjectStatus.PENDING);
+        project.setErrorMessage(null);
+        project.setUploadedAt(LocalDateTime.now());
+        projectRepository.save(project);
+
+        analysisOrchestrator.runAnalysis(id);
+
+        return toResponseDto(project);
     }
 }

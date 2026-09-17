@@ -20,7 +20,8 @@ public class PromptBuilder {
                 "responsibilities, 4) why it depends on the classes it depends on, and " +
                 "5) any likely business logic it implements. Keep the explanation practical " +
                 "and easy for a developer new to this codebase to understand. Avoid restating " +
-                "the code verbatim; explain its intent.";
+                "the code verbatim; explain its intent.Format your response in Markdown, using headings and bullet points for structure. " +
+                "Use a table only when comparing multiple items with the same attributes.";
     }
 
     public String buildClassExplanationPrompt(JavaClass javaClass, List<Dependency> outgoingDependencies,
@@ -68,7 +69,8 @@ public class PromptBuilder {
                 "summaries). Answer the question clearly and directly using ONLY this " +
                 "information. If the provided context does not seem to contain a clear " +
                 "answer, say so honestly rather than guessing. Reference specific class " +
-                "names in your answer so the developer knows exactly where to look.";
+                "names in your answer so the developer knows exactly where to look.Format your response in Markdown, using headings and bullet points for structure. " +
+                "Use a table only when comparing multiple items with the same attributes.";
     }
 
     public String buildChatUserPrompt(String question, List<RelevantClassDto> relevantClasses) {

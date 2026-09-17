@@ -175,4 +175,9 @@ public class ProjectController {
     public DiffExplanationDto explainCommit(@PathVariable Long id, @PathVariable String commitId) {
         return commitHistoryService.explainCommit(id, commitId);
     }
+
+    @PostMapping("/{id}/reanalyze")
+    public ProjectResponseDto reanalyzeProject(@PathVariable Long id) {
+        return projectService.reanalyzeProject(id);
+    }
 }
