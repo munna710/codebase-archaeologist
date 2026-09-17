@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCommits, explainCommit } from '../api/commits';
+import MarkdownContent from '../components/MarkdownContent';
 
 const CHANGE_TYPE_COLORS = {
   ADD: '#16a34a',
@@ -101,7 +102,7 @@ function Commits() {
                 Changes from {explanation.fromCommit} → {explanation.toCommit}
               </p>
 
-              <p style={{ whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>{explanation.aiExplanation}</p>
+              <div style={{ marginBottom: '0.75rem' }}><MarkdownContent content={explanation.aiExplanation} /></div>
 
               {explanation.changedFiles.length > 0 && (
                 <div style={{ marginBottom: '1rem' }}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { analyzeError } from '../api/debug';
+import MarkdownContent from '../components/MarkdownContent';
 
 const SAMPLE_TRACE = `java.lang.NullPointerException: Cannot invoke "String.length()" because "name" is null
 	at com.example.owner.OwnerController.processCreationForm(OwnerController.java:89)
@@ -101,7 +102,7 @@ function Debug() {
             }}
           >
             <h3 style={{ marginTop: 0 }}>Analysis</h3>
-            <p style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>{result.aiAnalysis}</p>
+            <div style={{ marginBottom: '0.75rem' }}><MarkdownContent content={result.aiAnalysis} /></div>
           </div>
 
           {result.likelyClasses.length > 0 && (
