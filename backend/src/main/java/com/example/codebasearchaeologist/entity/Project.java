@@ -30,6 +30,12 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectSourceType sourceType;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
+
+
+
     public Project() {
     }
 
@@ -88,4 +94,7 @@ public class Project {
 
     public ProjectSourceType getSourceType() { return sourceType; }
     public void setSourceType(ProjectSourceType sourceType) { this.sourceType = sourceType; }
+
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
 }

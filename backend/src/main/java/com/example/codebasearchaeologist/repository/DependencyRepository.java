@@ -15,6 +15,7 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long> {
     List<Dependency> findByTargetClass_ClassId(Long classId);
     List<Dependency> findBySourceClass_ClassId(Long classId);
 
+
     @Query("""
         SELECT d.targetClass.classId AS classId,
                d.targetClass.className AS className,
@@ -26,4 +27,5 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long> {
         ORDER BY COUNT(d) DESC
         """)
     List<ClassRankingProjection> findMostDependedUponClasses(@Param("projectId") Long projectId);
+    long countBySourceClass_JavaFile_Project_Owner_UserId(Long userId);
 }

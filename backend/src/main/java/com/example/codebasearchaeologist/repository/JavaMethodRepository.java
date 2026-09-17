@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface JavaMethodRepository extends JpaRepository<JavaMethod, Long> {
     List<JavaMethod> findByJavaClass_ClassId(Long classId);
+    long countByJavaClass_JavaFile_Project_Owner_UserId(Long userId);
 }

@@ -9,6 +9,7 @@ import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.DocumentationRepository;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
 import com.example.codebasearchaeologist.repository.ProjectRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class DocumentationService {
     private final PromptBuilder promptBuilder;
     private final SourceCodeReader sourceCodeReader;
     private final OllamaEmbeddingClient ollamaEmbeddingClient;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public DocumentationService(ProjectRepository projectRepository,
                                 JavaClassRepository javaClassRepository,
@@ -32,7 +34,7 @@ public class DocumentationService {
                                 DocumentationRepository documentationRepository,
                                 OpenAiClient openAiClient,
                                 PromptBuilder promptBuilder,
-                                SourceCodeReader sourceCodeReader, OllamaEmbeddingClient ollamaEmbeddingClient) {
+                                SourceCodeReader sourceCodeReader, OllamaEmbeddingClient ollamaEmbeddingClient, ProjectAccessGuard projectAccessGuard) {
         this.projectRepository = projectRepository;
         this.javaClassRepository = javaClassRepository;
         this.dependencyRepository = dependencyRepository;
@@ -41,6 +43,7 @@ public class DocumentationService {
         this.promptBuilder = promptBuilder;
         this.sourceCodeReader = sourceCodeReader;
         this.ollamaEmbeddingClient = ollamaEmbeddingClient;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     /**
@@ -48,6 +51,8 @@ public class DocumentationService {
      * already have documentation, and saves the results.
      */
     public List<Documentation> generateDocumentationForProject(Long projectId) {
+
+        projectAccessGuard.requireOwnedProject(projectId);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
 
@@ -95,6 +100,7 @@ public class DocumentationService {
     }
 
     public List<Documentation> getDocumentationForProject(Long projectId) {
+        projectAccessGuard.requireOwnedProject(projectId);
         return documentationRepository.findByProject_ProjectId(projectId);
     }
 

@@ -4,6 +4,7 @@ import com.example.codebasearchaeologist.entity.Documentation;
 import com.example.codebasearchaeologist.entity.Project;
 import com.example.codebasearchaeologist.repository.DocumentationRepository;
 import com.example.codebasearchaeologist.repository.ProjectRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,14 +14,17 @@ public class MarkdownExportService {
 
     private final ProjectRepository projectRepository;
     private final DocumentationRepository documentationRepository;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public MarkdownExportService(ProjectRepository projectRepository,
-                                   DocumentationRepository documentationRepository) {
+                                 DocumentationRepository documentationRepository, ProjectAccessGuard projectAccessGuard) {
         this.projectRepository = projectRepository;
         this.documentationRepository = documentationRepository;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     public String generateMarkdown(Long projectId) {
+        projectAccessGuard.requireOwnedProject(projectId);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
 

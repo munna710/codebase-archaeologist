@@ -24,4 +24,6 @@ public interface JavaClassRepository extends JpaRepository<JavaClass, Long> {
         GROUP BY c.classId, c.className, c.packageName
         """)
     List<ClassMethodCountProjection> findMethodCountsByProject(@Param("projectId") Long projectId);
+
+    long countByJavaFile_Project_Owner_UserId(Long userId);
 }

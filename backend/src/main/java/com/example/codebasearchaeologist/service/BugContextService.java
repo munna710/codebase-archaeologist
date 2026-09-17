@@ -6,7 +6,9 @@ import com.example.codebasearchaeologist.dto.BugContextDto;
 import com.example.codebasearchaeologist.dto.RelevantClassDto;
 import com.example.codebasearchaeologist.entity.JavaClass;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.springframework.stereotype.Service;
+
 
 import java.util.*;
 
@@ -17,18 +19,21 @@ public class BugContextService {
     private final CodeSearchService codeSearchService;
     private final JavaClassRepository javaClassRepository;
     private final OpenAiClient openAiClient;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public BugContextService(StackTraceParser stackTraceParser,
-                              CodeSearchService codeSearchService,
-                              JavaClassRepository javaClassRepository,
-                              OpenAiClient openAiClient) {
+                             CodeSearchService codeSearchService,
+                             JavaClassRepository javaClassRepository,
+                             OpenAiClient openAiClient, ProjectAccessGuard projectAccessGuard) {
         this.stackTraceParser = stackTraceParser;
         this.codeSearchService = codeSearchService;
         this.javaClassRepository = javaClassRepository;
         this.openAiClient = openAiClient;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     public BugContextDto analyzeError(Long projectId, String rawStackTrace) {
+        projectAccessGuard.requireOwnedProject(projectId);
         StackTraceParser.ParsedStackTrace parsed = stackTraceParser.parse(rawStackTrace);
 
         List<JavaClass> allProjectClasses = javaClassRepository.findByJavaFile_Project_ProjectId(projectId);

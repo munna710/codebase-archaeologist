@@ -5,6 +5,7 @@ import com.example.codebasearchaeologist.entity.JavaClass;
 import com.example.codebasearchaeologist.entity.JavaMethod;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,14 +18,17 @@ public class CodeSmellService {
 
     private final JavaClassRepository javaClassRepository;
     private final DependencyRepository dependencyRepository;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public CodeSmellService(JavaClassRepository javaClassRepository,
-                             DependencyRepository dependencyRepository) {
+                            DependencyRepository dependencyRepository, ProjectAccessGuard projectAccessGuard) {
         this.javaClassRepository = javaClassRepository;
         this.dependencyRepository = dependencyRepository;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     public List<CodeSmellDto> detectSmells(Long projectId) {
+        projectAccessGuard.requireOwnedProject(projectId);
         List<CodeSmellDto> smells = new ArrayList<>();
         List<JavaClass> classes = javaClassRepository.findByJavaFile_Project_ProjectId(projectId);
 

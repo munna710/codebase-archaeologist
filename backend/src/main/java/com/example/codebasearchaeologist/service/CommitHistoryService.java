@@ -10,6 +10,7 @@ import com.example.codebasearchaeologist.exception.CommitHistoryUnavailableExcep
 import com.example.codebasearchaeologist.exception.ProjectNotFoundException;
 import com.example.codebasearchaeologist.repository.JavaClassRepository;
 import com.example.codebasearchaeologist.repository.ProjectRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -46,15 +47,17 @@ public class CommitHistoryService {
     private final RepositoryDownloader repositoryDownloader;
     private final JavaClassRepository javaClassRepository;
     private final OpenAiClient openAiClient;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public CommitHistoryService(ProjectRepository projectRepository,
-                                 RepositoryDownloader repositoryDownloader,
-                                 JavaClassRepository javaClassRepository,
-                                 OpenAiClient openAiClient) {
+                                RepositoryDownloader repositoryDownloader,
+                                JavaClassRepository javaClassRepository,
+                                OpenAiClient openAiClient, ProjectAccessGuard projectAccessGuard) {
         this.projectRepository = projectRepository;
         this.repositoryDownloader = repositoryDownloader;
         this.javaClassRepository = javaClassRepository;
         this.openAiClient = openAiClient;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     private File getOrCloneHistoryRepo(Project project) {
@@ -69,6 +72,7 @@ public class CommitHistoryService {
     }
 
     public List<CommitDto> listCommits(Long projectId) {
+        projectAccessGuard.requireOwnedProject(projectId);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
@@ -102,6 +106,7 @@ public class CommitHistoryService {
      * This is the common case: "what did this commit actually do?"
      */
     public DiffExplanationDto explainCommit(Long projectId, String commitId) {
+        projectAccessGuard.requireOwnedProject(projectId);
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 

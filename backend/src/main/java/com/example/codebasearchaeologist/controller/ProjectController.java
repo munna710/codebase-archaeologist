@@ -7,6 +7,7 @@ import com.example.codebasearchaeologist.entity.JavaFile;
 import com.example.codebasearchaeologist.repository.ClassRankingProjection;
 import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.example.codebasearchaeologist.repository.JavaFileRepository;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import com.example.codebasearchaeologist.service.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,7 @@ public class ProjectController {
     private final CodeSmellService codeSmellService;
     private final BugContextService bugContextService;
     private final CommitHistoryService commitHistoryService;
+    private final ProjectAccessGuard projectAccessGuard;
 
 
 
@@ -43,7 +45,7 @@ public class ProjectController {
     public ProjectController(ProjectService projectService,
                              JavaFileRepository javaFileRepository,
                              DependencyRepository dependencyRepository,
-                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService, BugContextService bugContextService, CommitHistoryService commitHistoryService) {
+                             DocumentationService documentationService, MarkdownExportService markdownExportService, PdfExportService pdfExportService, ClassDetailsService classDetailsService, CodeSearchService codeSearchService, ChatService chatService, CodeSmellService codeSmellService, BugContextService bugContextService, CommitHistoryService commitHistoryService, ProjectAccessGuard projectAccessGuard) {
         this.projectService = projectService;
         this.javaFileRepository = javaFileRepository;
         this.dependencyRepository = dependencyRepository;
@@ -57,6 +59,7 @@ public class ProjectController {
         this.codeSmellService = codeSmellService;
         this.bugContextService = bugContextService;
         this.commitHistoryService = commitHistoryService;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     @PostMapping
@@ -84,11 +87,13 @@ public class ProjectController {
 
     @GetMapping("/{id}/files")
     public List<JavaFile> getProjectFiles(@PathVariable Long id) {
+        projectAccessGuard.requireOwnedProject(id);
         return javaFileRepository.findByProject_ProjectId(id);
     }
 
     @GetMapping("/{id}/dependencies")
     public List<Dependency> getProjectDependencies(@PathVariable Long id) {
+        projectAccessGuard.requireOwnedProject(id);
         return dependencyRepository.findBySourceClass_JavaFile_Project_ProjectId(id);
     }
 

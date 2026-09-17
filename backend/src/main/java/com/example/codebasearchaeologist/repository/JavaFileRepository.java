@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface JavaFileRepository extends JpaRepository<JavaFile, Long> {
     List<JavaFile> findByProject_ProjectId(Long projectId);
+    long countByProject_Owner_UserId(Long userId);
 }

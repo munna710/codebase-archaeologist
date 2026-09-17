@@ -64,4 +64,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleCommitHistoryUnavailable(CommitHistoryUnavailableException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
+
+    @ExceptionHandler(DuplicateUserException.class)
+    public ResponseEntity<ErrorResponseDto> handleDuplicateUser(DuplicateUserException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
 }

@@ -4,6 +4,7 @@ import com.example.codebasearchaeologist.ai.OpenAiClient;
 import com.example.codebasearchaeologist.ai.PromptBuilder;
 import com.example.codebasearchaeologist.dto.ChatAnswerDto;
 import com.example.codebasearchaeologist.dto.RelevantClassDto;
+import com.example.codebasearchaeologist.security.ProjectAccessGuard;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,16 +15,19 @@ public class ChatService {
     private final CodeSearchService codeSearchService;
     private final OpenAiClient openAiClient;
     private final PromptBuilder promptBuilder;
+    private final ProjectAccessGuard projectAccessGuard;
 
     public ChatService(CodeSearchService codeSearchService,
-                        OpenAiClient openAiClient,
-                        PromptBuilder promptBuilder) {
+                       OpenAiClient openAiClient,
+                       PromptBuilder promptBuilder, ProjectAccessGuard projectAccessGuard) {
         this.codeSearchService = codeSearchService;
         this.openAiClient = openAiClient;
         this.promptBuilder = promptBuilder;
+        this.projectAccessGuard = projectAccessGuard;
     }
 
     public ChatAnswerDto answerQuestion(Long projectId, String question) {
+        projectAccessGuard.requireOwnedProject(projectId);
         List<RelevantClassDto> relevantClasses = codeSearchService.findRelevantClasses(projectId, question);
 
         if (relevantClasses.isEmpty()) {

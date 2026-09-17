@@ -7,21 +7,16 @@ import com.example.codebasearchaeologist.analyzer.RepositoryDownloader;
 import com.example.codebasearchaeologist.dto.ProjectRequestDto;
 import com.example.codebasearchaeologist.dto.ProjectResponseDto;
 import com.example.codebasearchaeologist.entity.*;
-import com.example.codebasearchaeologist.exception.AnalysisInProgressException;
-import com.example.codebasearchaeologist.exception.DuplicateProjectException;
-import com.example.codebasearchaeologist.exception.ProjectNotFoundException;
-import com.example.codebasearchaeologist.exception.RepositoryDownloadException;
-import com.example.codebasearchaeologist.repository.JavaFileRepository;
-import com.example.codebasearchaeologist.repository.ProjectRepository;
+import com.example.codebasearchaeologist.exception.*;
+import com.example.codebasearchaeologist.repository.*;
+import com.example.codebasearchaeologist.security.CurrentUserProvider;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import org.springframework.stereotype.Service;
 import com.example.codebasearchaeologist.analyzer.DependencyAnalyzer;
 import com.example.codebasearchaeologist.entity.Dependency;
-import com.example.codebasearchaeologist.repository.DependencyRepository;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import org.springframework.web.multipart.MultipartFile;
-import com.example.codebasearchaeologist.repository.DocumentationRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,6 +42,8 @@ public class ProjectService {
     private final DependencyRepository dependencyRepository;
     private final AnalysisOrchestrator analysisOrchestrator;
     private final DocumentationRepository documentationRepository;
+    private final CurrentUserProvider currentUserProvider;
+    private final UserRepository userRepository;
 
 
     public ProjectService(ProjectRepository projectRepository,
@@ -56,7 +53,7 @@ public class ProjectService {
                           JavaCodeParser javaCodeParser,
                           CodeExtractor codeExtractor,
                           DependencyAnalyzer dependencyAnalyzer,
-                          DependencyRepository dependencyRepository, AnalysisOrchestrator analysisOrchestrator, DocumentationRepository documentationRepository) {
+                          DependencyRepository dependencyRepository, AnalysisOrchestrator analysisOrchestrator, DocumentationRepository documentationRepository, CurrentUserProvider currentUserProvider, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.javaFileRepository = javaFileRepository;
         this.repositoryDownloader = repositoryDownloader;
@@ -67,39 +64,41 @@ public class ProjectService {
         this.dependencyRepository = dependencyRepository;
         this.analysisOrchestrator = analysisOrchestrator;
         this.documentationRepository = documentationRepository;
+        this.currentUserProvider = currentUserProvider;
+        this.userRepository = userRepository;
     }
 
 
     public ProjectResponseDto createProject(ProjectRequestDto requestDto) {
-        Optional<Project> existing = projectRepository.findByRepositoryUrl(requestDto.getRepositoryUrl());
+        Long userId = currentUserProvider.getCurrentUserId();
+        User owner = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+
+        Optional<Project> existing = projectRepository.findByRepositoryUrlAndOwner_UserId(
+                requestDto.getRepositoryUrl(), userId);
 
         if (existing.isPresent()) {
             Project existingProject = existing.get();
 
             boolean canRetry = existingProject.getStatus() == ProjectStatus.FAILED;
-
             if (!canRetry) {
                 throw new DuplicateProjectException(requestDto.getRepositoryUrl());
             }
 
-            // Previously failed — reset it so the user can retry instead of being stuck.
             existingProject.setStatus(ProjectStatus.PENDING);
             existingProject.setErrorMessage(null);
             existingProject.setUploadedAt(LocalDateTime.now());
-
-            Project saved = projectRepository.save(existingProject);
-            return toResponseDto(saved);
+            return toResponseDto(projectRepository.save(existingProject));
         }
 
         Project project = new Project();
-
         String[] parts = requestDto.getRepositoryUrl().split("/");
         String derivedName = parts[parts.length - 1].replace(".git", "");
 
         project.setProjectName(derivedName);
         project.setDescription(requestDto.getDescription());
         project.setRepositoryUrl(requestDto.getRepositoryUrl());
-        project.setSourceType(ProjectSourceType.GITHUB);  // <-- ADD THIS
+        project.setSourceType(ProjectSourceType.GITHUB);
+        project.setOwner(owner);
         project.setUploadedAt(LocalDateTime.now());
         project.setStatus(ProjectStatus.PENDING);
 
@@ -117,6 +116,8 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException(id));
 
+        assertOwnership(project);
+
         boolean alreadyInProgress = project.getStatus() == ProjectStatus.CLONING
                 || project.getStatus() == ProjectStatus.PARSING
                 || project.getStatus() == ProjectStatus.ANALYZING_DEPENDENCIES;
@@ -128,13 +129,14 @@ public class ProjectService {
         project.setStatus(ProjectStatus.PENDING);
         projectRepository.save(project);
 
-        analysisOrchestrator.runAnalysis(id); // fire-and-forget: returns immediately
+        analysisOrchestrator.runAnalysis(id);
 
         return toResponseDto(project);
     }
 
     public List<ProjectResponseDto> getAllProjects() {
-        return projectRepository.findAll()
+        Long userId = currentUserProvider.getCurrentUserId();
+        return projectRepository.findByOwner_UserId(userId)
                 .stream()
                 .map(this::toResponseDto)
                 .toList();
@@ -142,8 +144,17 @@ public class ProjectService {
 
     public ProjectResponseDto getProjectById(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+
+        assertOwnership(project);
         return toResponseDto(project);
+    }
+
+    private void assertOwnership(Project project) {
+        Long userId = currentUserProvider.getCurrentUserId();
+        if (!project.getOwner().getUserId().equals(userId)) {
+            throw new ProjectNotFoundException(project.getProjectId()); // 404, not 403 — see note below
+        }
     }
 
     private ProjectResponseDto toResponseDto(Project project) {
@@ -165,9 +176,15 @@ public class ProjectService {
         if (file == null || file.isEmpty()) {
             throw new RepositoryDownloadException("No ZIP file was provided.");
         }
+
         if (!file.getOriginalFilename().toLowerCase().endsWith(".zip")) {
             throw new RepositoryDownloadException("Uploaded file must be a .zip file.");
         }
+
+        Long userId = currentUserProvider.getCurrentUserId();
+
+        User owner = userRepository.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
 
         String derivedName = file.getOriginalFilename().replace(".zip", "");
 
@@ -176,10 +193,12 @@ public class ProjectService {
         project.setDescription(description);
         project.setRepositoryUrl(null);
         project.setSourceType(ProjectSourceType.ZIP_UPLOAD);
+        project.setOwner(owner);
         project.setUploadedAt(LocalDateTime.now());
         project.setStatus(ProjectStatus.PENDING);
 
         Project saved = projectRepository.save(project);
+
 
         // Copy the upload's bytes to a durable location now, synchronously,
         // since the background analysis thread will need them later and
@@ -202,7 +221,7 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException(id));
 
-//        assertOwnership(project);
+        assertOwnership(project);
 
         boolean alreadyInProgress = project.getStatus() == ProjectStatus.CLONING
                 || project.getStatus() == ProjectStatus.PARSING
