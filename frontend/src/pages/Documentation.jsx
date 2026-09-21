@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getDocumentation, generateDocumentation } from '../api/documentation';
+import { getDocumentation, generateDocumentation, downloadMarkdown, downloadPdf } from '../api/documentation';
 import MarkdownContent from '../components/MarkdownContent';
 
 function Documentation() {
@@ -9,6 +9,7 @@ function Documentation() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(null);
 
   const loadDocs = () => {
     setLoading(true);
@@ -35,19 +36,34 @@ function Documentation() {
     }
   };
 
+  const handleDownload = async (type) => {
+  setDownloading(type);
+  try {
+    if (type === 'markdown') {
+      await downloadMarkdown(id);
+    } else {
+      await downloadPdf(id);
+    }
+  } catch (err) {
+    setError('Failed to download the file. Please try again.');
+  } finally {
+    setDownloading(null);
+  }
+};
+
   if (loading) return <p>Loading...</p>;
 
   return (
     <div>
       <h1>Documentation</h1>
         <div style={{ marginBottom: '1rem' }}>
-        <a href={`http://localhost:8080/api/projects/${id}/export/markdown`}>
-          Export as Markdown
-        </a>
-        {' | '}
-        <a href={`http://localhost:8080/api/projects/${id}/export/pdf`}>
-          Export as PDF
-        </a>
+        <button onClick={() => handleDownload('markdown')} disabled={downloading !== null}>
+          {downloading === 'markdown' ? 'Preparing...' : 'Export as Markdown'}
+        </button>
+        {' '}
+        <button onClick={() => handleDownload('pdf')} disabled={downloading !== null}>
+          {downloading === 'pdf' ? 'Preparing...' : 'Export as PDF'}
+        </button>
       </div>
 
       <button onClick={handleGenerate} disabled={generating}>
