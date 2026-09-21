@@ -128,6 +128,7 @@ mark { background: rgba(var(--ca-flag-rgb), 0.22); color: inherit; padding: 0 0.
 .form-control:focus, .form-select:focus {
   border-color: var(--ca-edge);
   box-shadow: 0 0 0 2px var(--ca-flag);
+  color: var(--ca-ink);
 }
 
 /* ---------- Bootstrap components ---------- */

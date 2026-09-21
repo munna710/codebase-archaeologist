@@ -144,3 +144,128 @@
   }
   .register-aside .section-drawing { height: 20rem; }
 }
+
+
+
+/* Dashboard page styles. Load after bootstrap.min.css and theme.css. */
+
+.dash-page {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.dash-header { margin-bottom: 1.5rem; }
+
+/* Stats: a ruled sheet, like a survey table */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--ca-edge);
+  border-left: 1px solid var(--ca-edge);
+}
+
+.dash-cell {
+  padding: 1rem 1.25rem;
+  background: var(--ca-chalk);
+  border-right: 1px solid var(--ca-edge);
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.dash-label {
+  margin: 0;
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ca-ink-muted);
+}
+
+.dash-value {
+  margin: 0.25rem 0 0;
+  font-family: var(--ca-font-mono);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading and error states */
+.dash-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+}
+
+.dash-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .dash-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 992px) {
+  .dash-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+
+
+/* Add project page styles. Load after bootstrap.min.css and theme.css. */
+
+.add-page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.add-header { margin-bottom: 1.5rem; }
+
+/* Source switch: two buttons that read as one control */
+.add-tabs { display: flex; width: 100%; }
+.add-tabs .btn { flex: 1; }
+
+/* Progress line while the project is created and analyzed */
+.add-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+}
+
+/* File picker: match the text inputs */
+.add-page input[type="file"].form-control {
+  padding: 0.5rem 0.75rem;
+  font-family: var(--ca-font-ui);
+  font-size: 0.9375rem;
+}
+.add-page input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--ca-edge);
+  border-radius: var(--bs-border-radius);
+  background: var(--ca-chalk);
+  color: var(--ca-ink);
+  font-family: var(--ca-font-ui);
+  font-weight: 500;
+}
+
+.add-page input[type="file"]:hover::file-selector-button {
+  color: #000000 !important;
+}
+
+
+
+.add-page .form-text {
+  font-family: var(--ca-font-ui);
+  font-size: 0.8125rem;
+  color: var(--ca-ink-muted);
+}
+

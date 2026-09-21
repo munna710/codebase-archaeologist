@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createProject, createProjectFromZip, analyzeProject } from '../api/projects';
 
+import '../theme.css';
+import './login.css';
+
 function AddProject() {
   const [mode, setMode] = useState('github'); // 'github' | 'zip'
   const [repositoryUrl, setRepositoryUrl] = useState('');
@@ -16,7 +19,7 @@ function AddProject() {
     const trimmedUrl = repositoryUrl.trim();
     if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/.test(trimmedUrl)) {
       setStatus('error');
-      setErrorMessage('Please enter a valid GitHub URL, e.g. https://github.com/user/repository');
+      setErrorMessage('Enter a valid GitHub URL, like https://github.com/user/repository');
       return;
     }
 
@@ -41,7 +44,7 @@ function AddProject() {
 
     if (!zipFile) {
       setStatus('error');
-      setErrorMessage('Please choose a .zip file first.');
+      setErrorMessage('Choose a .zip file first.');
       return;
     }
     if (!zipFile.name.toLowerCase().endsWith('.zip')) {
@@ -61,7 +64,7 @@ function AddProject() {
     } catch (err) {
       setStatus('error');
       setErrorMessage(
-        err.response?.data?.message || 'Something went wrong uploading the ZIP file. Please try again.'
+        err.response?.data?.message || 'Something went wrong uploading the ZIP file. Try again.'
       );
     }
   };
@@ -75,66 +78,103 @@ function AddProject() {
   const busy = status === 'creating' || status === 'analyzing';
 
   return (
-    <div>
-      <h1>Add Project</h1>
+    <main className="add-page">
+      <header className="add-header">
+        <h1 className="h2 mb-1">Add project</h1>
+        <p className="text-body-secondary mb-0">Analyze a GitHub repository or upload a ZIP file.</p>
+      </header>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <button
-          type="button"
-          onClick={() => switchMode('github')}
-          disabled={busy}
-          style={{ backgroundColor: mode === 'github' ? '#2563eb' : '#e2e8f0', color: mode === 'github' ? '#fff' : '#334155' }}
-        >
-          GitHub URL
-        </button>
-        {' '}
-        <button
-          type="button"
-          onClick={() => switchMode('zip')}
-          disabled={busy}
-          style={{ backgroundColor: mode === 'zip' ? '#2563eb' : '#e2e8f0', color: mode === 'zip' ? '#fff' : '#334155' }}
-        >
-          Upload ZIP
-        </button>
-      </div>
-
-      {mode === 'github' && (
-        <form onSubmit={handleGithubSubmit}>
-          <input
-            type="text"
-            placeholder="https://github.com/user/repository"
-            value={repositoryUrl}
-            onChange={(e) => setRepositoryUrl(e.target.value)}
-            disabled={busy}
-            required
-          />
-          <button type="submit" disabled={busy || !repositoryUrl.trim()}>
-            {status === 'analyzing' ? 'Analyzing...' : status === 'creating' ? 'Adding...' : 'Analyze Project'}
-          </button>
-        </form>
-      )}
-
-      {mode === 'zip' && (
-        <form onSubmit={handleZipSubmit}>
-          <input
-            type="file"
-            accept=".zip"
-            onChange={(e) => setZipFile(e.target.files[0] || null)}
-            disabled={busy}
-          />
-          <div style={{ marginTop: '0.75rem' }}>
-            <button type="submit" disabled={busy || !zipFile}>
-              {status === 'analyzing' ? 'Analyzing...' : status === 'creating' ? 'Uploading...' : 'Upload & Analyze'}
+      <div className="card add-card">
+        <div className="card-body p-4">
+          <div className="btn-group add-tabs mb-4" role="group" aria-label="Project source">
+            <button
+              type="button"
+              className={`btn ${mode === 'github' ? 'btn-primary' : 'btn-outline-secondary'}`}
+              onClick={() => switchMode('github')}
+              disabled={busy}
+              aria-pressed={mode === 'github'}
+            >
+              GitHub URL
+            </button>
+            <button
+              type="button"
+              className={`btn ${mode === 'zip' ? 'btn-primary' : 'btn-outline-secondary'}`}
+              onClick={() => switchMode('zip')}
+              disabled={busy}
+              aria-pressed={mode === 'zip'}
+            >
+              Upload ZIP
             </button>
           </div>
-          <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            Maximum file size: 100 MB. Only .zip files containing Java source code are supported.
-          </p>
-        </form>
-      )}
 
-      {status === 'error' && <p style={{ color: 'red' }}>{errorMessage}</p>}
-    </div>
+          {status === 'error' && (
+            <div className="alert alert-danger" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
+          {busy && (
+            <div className="add-status" role="status" aria-live="polite">
+              <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+              <span>{status === 'analyzing' ? 'Analyzing your code…' : 'Adding your project…'}</span>
+            </div>
+          )}
+
+          {mode === 'github' && (
+            <form onSubmit={handleGithubSubmit}>
+              <div className="mb-4">
+                <label htmlFor="repository-url" className="form-label">Repository URL</label>
+                <input
+                  id="repository-url"
+                  type="text"
+                  inputMode="url"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="form-control"
+                  placeholder="https://github.com/user/repository"
+                  value={repositoryUrl}
+                  onChange={(e) => setRepositoryUrl(e.target.value)}
+                  disabled={busy}
+                  required
+                />
+              </div>
+              <div className="d-grid">
+                <button type="submit" className="btn btn-primary" disabled={busy || !repositoryUrl.trim()}>
+                  {status === 'analyzing' ? 'Analyzing…' : status === 'creating' ? 'Adding…' : 'Analyze project'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {mode === 'zip' && (
+            <form onSubmit={handleZipSubmit}>
+              <div className="mb-4">
+                <label htmlFor="zip-file" className="form-label">ZIP file</label>
+                <input
+                  id="zip-file"
+                  type="file"
+                  accept=".zip"
+                  className="form-control"
+                  aria-describedby="zip-hint"
+                  onChange={(e) => setZipFile(e.target.files[0] || null)}
+                  disabled={busy}
+                />
+                <div id="zip-hint" className="form-text">
+                  Maximum file size: 100 MB. Only .zip files containing Java source code are supported.
+                </div>
+              </div>
+              <div className="d-grid">
+                <button type="submit" className="btn btn-primary" disabled={busy || !zipFile}>
+                  {status === 'analyzing' ? 'Analyzing…' : status === 'creating' ? 'Uploading…' : 'Upload and analyze'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+
+      <div className="scale-bar" aria-hidden="true" />
+    </main>
   );
 }
 
