@@ -30,6 +30,39 @@
 }
 .topbar-brand:hover { color: var(--ca-ink); }
 
+/* Hamburger button: three bars drawn in CSS, turns into an X when open */
+.topbar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+}
+
+.topbar-bars,
+.topbar-bars::before,
+.topbar-bars::after {
+  display: block;
+  width: 1.25rem;
+  height: 2px;
+  background: currentColor;
+  transition: top 0.15s, transform 0.15s, background-color 0.15s;
+}
+.topbar-bars { position: relative; }
+.topbar-bars::before,
+.topbar-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+.topbar-bars::before { top: -6px; }
+.topbar-bars::after { top: 6px; }
+
+.topbar-toggle[aria-expanded="true"] .topbar-bars { background: transparent; }
+.topbar-toggle[aria-expanded="true"] .topbar-bars::before { top: 0; transform: rotate(45deg); }
+.topbar-toggle[aria-expanded="true"] .topbar-bars::after { top: 0; transform: rotate(-45deg); }
+
 /* Small screens: menu drops below the bar */
 .topbar-menu {
   display: none;

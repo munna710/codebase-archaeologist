@@ -23,12 +23,14 @@ function Navbar() {
 
         <button
           type="button"
-          className="btn btn-outline-secondary btn-sm topbar-toggle"
+          className=" topbar-toggle"
           aria-expanded={open}
           aria-controls="topbar-menu"
+          aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen((o) => !o)}
         >
-          {open ? 'Close' : 'Menu'}
+             &#9776;
+         
         </button>
 
         <nav id="topbar-menu" className={`topbar-menu ${open ? 'is-open' : ''}`} aria-label="Main">

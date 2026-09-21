@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
@@ -16,7 +16,7 @@ import Chat from './pages/Chat';
 import CodeSmells from './pages/CodeSmells';
 import Debug from './pages/Debug';
 import Commits from './pages/Commits';
-import Navbar from './components/Navbar';
+import NavBar from './components/NavBar';
 
 
 function Layout() {
@@ -34,28 +34,7 @@ function Layout() {
   );
 }
 
-function NavBar() {
-  const { user, logoutUser } = useAuth();
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logoutUser();
-    navigate('/login');
-  };
-
-  return (
-    <nav>
-      <Link to="/">Dashboard</Link>{' | '}
-      <Link to="/projects">Projects</Link>{' | '}
-      <Link to="/projects/new">Add Project</Link>
-      {user && (
-        <span style={{ float: 'right' }}>
-          {user.name} · <button onClick={handleLogout} style={{ padding: '0.2rem 0.6rem' }}>Log Out</button>
-        </span>
-      )}
-    </nav>
-  );
-}
 
 function AppRoutes() {
   return (

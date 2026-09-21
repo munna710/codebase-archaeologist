@@ -269,3 +269,173 @@
   color: var(--ca-ink-muted);
 }
 
+/* Dashboard page styles. Load after bootstrap.min.css and theme.css. */
+
+.dash-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.dash-header { margin-bottom: 1.5rem; }
+
+/* Stats: a ruled sheet, like a survey table */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--ca-edge);
+  border-left: 1px solid var(--ca-edge);
+}
+
+.dash-cell {
+  padding: 1rem 1.25rem;
+  background: var(--ca-chalk);
+  border-right: 1px solid var(--ca-edge);
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.dash-label {
+  margin: 0;
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ca-ink-muted);
+}
+
+.dash-value {
+  margin: 0.25rem 0 0;
+  font-family: var(--ca-font-mono);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.dash-value.is-warn { color: var(--ca-flag); }
+
+/* Project status summary under the stats */
+.dash-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 1rem 0 0;
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+  color: var(--ca-ink-muted);
+}
+.dash-summary .is-bad { color: var(--bs-danger-text-emphasis); }
+
+/* Most complex class: a risk marker in the flag colour */
+.dash-callout {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--ca-chalk);
+  border: 1px solid var(--ca-edge);
+  border-left: 4px solid var(--ca-flag);
+}
+.dash-callout-label {
+  margin: 0 0 0.25rem;
+  font-family: var(--ca-font-ui);
+  font-size: 0.8125rem;
+  color: var(--ca-ink-muted);
+}
+.dash-callout-link {
+  font-family: var(--ca-font-mono);
+  font-weight: 500;
+  font-size: 1.0625rem;
+}
+.dash-callout-meta {
+  margin: 0.125rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--ca-ink-muted);
+}
+
+/* Sections: chart and projects table */
+.dash-section { margin-top: 2rem; }
+.dash-section h2 { margin-bottom: 0.75rem; }
+
+.dash-panel {
+  padding: 1rem 1.25rem;
+  background: var(--ca-chalk);
+  border: 1px solid var(--ca-edge);
+  overflow-x: auto;
+}
+
+.dash-table-wrap {
+  background: var(--ca-chalk);
+  border: 1px solid var(--ca-edge);
+  overflow-x: auto;
+}
+.dash-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ca-ink);
+  --bs-table-border-color: var(--ca-line);
+}
+.dash-table th,
+.dash-table td { padding: 0.75rem 1rem; }
+.dash-table th {
+  font-family: var(--ca-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ca-ink-muted);
+  white-space: nowrap;
+  border-bottom-color: var(--ca-edge);
+}
+.dash-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+td.dash-num { font-family: var(--ca-font-mono); }
+.dash-date {
+  font-size: 0.875rem;
+  color: var(--ca-ink-muted);
+  white-space: nowrap;
+}
+.dash-project-link {
+  font-family: var(--ca-font-ui);
+  font-weight: 500;
+}
+
+/* Status tag: a small label with a coloured edge, like a find tag */
+.dash-tag {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding-right: 0.5rem;
+  border: 1px solid var(--ca-edge);
+  font-family: var(--ca-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.dash-tag::before {
+  content: "";
+  width: 0.5rem;
+  background: var(--tag, var(--ca-ink-muted));
+}
+.dash-tag--completed { --tag: var(--ca-plumb); }
+.dash-tag--failed { --tag: var(--bs-danger); }
+
+/* Loading and error states */
+.dash-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+}
+
+.dash-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .dash-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 992px) {
+  .dash-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}

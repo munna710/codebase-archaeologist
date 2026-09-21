@@ -1,138 +1,184 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getDashboardStats } from '../api/dashboard';
-import ChartDisplay from '../components/ChartDisplay'; // see note below
+import ChartDisplay from '../components/ChartDisplay';
 
-const STATUS_COLORS = {
-  COMPLETED: '#16a34a',
-  FAILED: '#dc2626',
-};
+import '../theme.css';
+import './login.css';
+
+const fmt = (n) => Number(n ?? 0).toLocaleString();
+
+function formatStatus(status) {
+  if (!status) return 'Unknown';
+  const text = status.toLowerCase().replace(/_/g, ' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    let ignore = false;
+    setError('');
+    setStats(null);
+
     getDashboardStats()
-      .then(setStats)
-      .catch(() => setError('Failed to load dashboard stats. Is the backend running?'));
-  }, []);
+      .then((data) => {
+        if (!ignore) setStats(data);
+      })
+      .catch(() => {
+        if (!ignore) {
+          setError("We couldn't load the dashboard stats. Check that the backend is running, then try again.");
+        }
+      });
 
-  if (error) return <p style={{ color: '#dc2626' }}>{error}</p>;
-  if (!stats) return <p>Loading...</p>;
+    return () => {
+      ignore = true;
+    };
+  }, [attempt]);
 
-  if (stats.totalProjects === 0) {
+  const header = (
+    <header className="dash-header">
+      <h1 className="h2 mb-1">Dashboard</h1>
+      <p className="text-body-secondary mb-0">Everything analyzed so far.</p>
+    </header>
+  );
+
+  if (error) {
     return (
-      <div>
-        <h1>Dashboard</h1>
-        <p style={{ color: '#64748b' }}>You haven't analyzed any projects yet.</p>
-        <Link to="/projects/new">
-          <button>Add Your First Project</button>
-        </Link>
-      </div>
+      <main className="dash-page">
+        {header}
+        <div className="alert alert-danger dash-alert" role="alert">
+          <span>{error}</span>
+          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setAttempt((a) => a + 1)}>
+            Try again
+          </button>
+        </div>
+      </main>
     );
   }
 
+  if (!stats) {
+    return (
+      <main className="dash-page">
+        {header}
+        <div className="dash-status" role="status" aria-live="polite">
+          <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+          <span>Loading dashboard…</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (stats.totalProjects === 0) {
+    return (
+      <main className="dash-page">
+        {header}
+        <div className="card">
+          <div className="card-body p-4">
+            <p className="text-body-secondary mb-3">You haven't analyzed any projects yet.</p>
+            <Link to="/projects/new" className="btn btn-primary">
+              Add your first project
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const hasSmells = stats.totalCodeSmells > 0;
+
+  const cells = [
+    { label: 'Projects', value: stats.totalProjects },
+    { label: 'Files', value: stats.totalFiles },
+    { label: 'Classes', value: stats.totalClasses },
+    { label: 'Methods', value: stats.totalMethods },
+    { label: 'Dependencies', value: stats.totalDependencies },
+    { label: 'Open code smells', value: stats.totalCodeSmells, warn: hasSmells },
+  ];
+
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <main className="dash-page">
+      {header}
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        <StatCard label="Projects" value={stats.totalProjects} />
-        <StatCard label="Files" value={stats.totalFiles} />
-        <StatCard label="Classes" value={stats.totalClasses} />
-        <StatCard label="Methods" value={stats.totalMethods} />
-        <StatCard label="Dependencies" value={stats.totalDependencies} />
-        <StatCard
-          label="Open Code Smells"
-          value={stats.totalCodeSmells}
-          color={stats.totalCodeSmells > 0 ? '#d97706' : '#16a34a'}
-        />
-      </div>
+      <dl className="dash-grid">
+        {cells.map(({ label, value, warn }) => (
+          <div key={label} className="dash-cell">
+            <dt className="dash-label">{label}</dt>
+            <dd className={`dash-value ${warn ? 'is-warn' : ''}`}>{fmt(value)}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="scale-bar" aria-hidden="true" />
 
-      <div style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-        {stats.completedProjects} completed · {stats.inProgressProjects} in progress ·{' '}
-        <span style={{ color: stats.failedProjects > 0 ? '#dc2626' : 'inherit' }}>
-          {stats.failedProjects} failed
-        </span>
-      </div>
+      <p className="dash-summary">
+        <span>{fmt(stats.completedProjects)} completed</span>
+        <span>{fmt(stats.inProgressProjects)} in progress</span>
+        <span className={stats.failedProjects > 0 ? 'is-bad' : ''}>{fmt(stats.failedProjects)} failed</span>
+      </p>
 
       {stats.topComplexClassName && (
-        <div
-          style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fca5a5',
-            borderRadius: '8px',
-            padding: '1rem',
-            marginBottom: '2rem',
-          }}
-        >
-          <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.25rem' }}>
-            Most complex class across all your projects
-          </p>
+        <div className="dash-callout">
+          <p className="dash-callout-label">Most complex class across all your projects</p>
           <Link
+            className="dash-callout-link"
             to={`/projects/${stats.topComplexClassProjectId}/classes/${stats.topComplexClassId}`}
-            style={{ fontWeight: 'bold', fontSize: '1.1rem' }}
           >
             {stats.topComplexClassName}
           </Link>
-          <span style={{ color: '#64748b' }}>
-            {' '}in {stats.topComplexClassProjectName} — complexity score {stats.topComplexClassScore}
-          </span>
+          <p className="dash-callout-meta">
+            in {stats.topComplexClassProjectName}, complexity score {stats.topComplexClassScore}
+          </p>
         </div>
       )}
 
-      <h3>Classes per Project</h3>
-      <ChartDisplay projects={stats.projects} />
+      <section className="dash-section">
+        <h2 className="h5">Classes per project</h2>
+        <div className="dash-panel">
+          <ChartDisplay projects={stats.projects} />
+        </div>
+      </section>
 
-      <h3 style={{ marginTop: '2rem' }}>Your Projects</h3>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
-            <th style={{ padding: '0.5rem' }}>Project</th>
-            <th style={{ padding: '0.5rem' }}>Status</th>
-            <th style={{ padding: '0.5rem' }}>Files</th>
-            <th style={{ padding: '0.5rem' }}>Classes</th>
-            <th style={{ padding: '0.5rem' }}>Smells</th>
-            <th style={{ padding: '0.5rem' }}>Added</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.projects.map((p) => (
-            <tr key={p.projectId} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.5rem' }}>
-                <Link to={`/projects/${p.projectId}`}>{p.projectName}</Link>
-              </td>
-              <td style={{ padding: '0.5rem', color: STATUS_COLORS[p.status] || '#64748b' }}>
-                {p.status}
-              </td>
-              <td style={{ padding: '0.5rem' }}>{p.fileCount}</td>
-              <td style={{ padding: '0.5rem' }}>{p.classCount}</td>
-              <td style={{ padding: '0.5rem' }}>{p.smellCount > 0 ? p.smellCount : '—'}</td>
-              <td style={{ padding: '0.5rem', color: '#64748b', fontSize: '0.85rem' }}>
-                {new Date(p.uploadedAt).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function StatCard({ label, value, color }) {
-  return (
-    <div
-      style={{
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '1rem 1.5rem',
-        minWidth: '120px',
-      }}
-    >
-      <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: color || '#1e293b' }}>{value}</div>
-      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>{label}</div>
-    </div>
+      <section className="dash-section">
+        <h2 className="h5">Your projects</h2>
+        <div className="dash-table-wrap">
+          <table className="table dash-table align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Project</th>
+                <th scope="col">Status</th>
+                <th scope="col" className="dash-num">Files</th>
+                <th scope="col" className="dash-num">Classes</th>
+                <th scope="col" className="dash-num">Smells</th>
+                <th scope="col">Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.projects.map((p) => (
+                <tr key={p.projectId}>
+                  <td>
+                    <Link className="dash-project-link" to={`/projects/${p.projectId}`}>
+                      {p.projectName}
+                    </Link>
+                  </td>
+                  <td>
+                    <span className={`dash-tag dash-tag--${(p.status || '').toLowerCase()}`}>
+                      {formatStatus(p.status)}
+                    </span>
+                  </td>
+                  <td className="dash-num">{fmt(p.fileCount)}</td>
+                  <td className="dash-num">{fmt(p.classCount)}</td>
+                  <td className="dash-num">{p.smellCount > 0 ? fmt(p.smellCount) : '—'}</td>
+                  <td className="dash-date">{new Date(p.uploadedAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
   );
 }
 
