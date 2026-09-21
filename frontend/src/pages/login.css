@@ -1,0 +1,146 @@
+/* Login page styles. Load after bootstrap.min.css and theme.css. */
+
+
+
+
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* Left panel: brand and the layer key */
+
+
+
+
+/* Right panel: the form */
+.login-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.login-card { width: 100%; max-width: 26rem; }
+
+.login-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.login-row a { font-family: var(--ca-font-ui); font-size: 0.875rem; }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--ca-line);
+}
+
+@media (min-width: 992px) {
+  .login-shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .login-aside {
+    padding: 3rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--ca-edge);
+  }
+  .login-aside .section-drawing { height: 20rem; }
+}
+
+
+
+/* Register page styles. Same design as login.css.
+   Load after bootstrap.min.css and theme.css. */
+
+.register-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* Left panel: brand and the layer key */
+.register-aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.register-brand {
+  margin: 0 0 1rem;
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.register-title {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  font-size: clamp(1.625rem, 3.5vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.register-aside .section-drawing { height: 7.5rem; }
+.register-aside .stratum span:last-child { font-weight: 400; }
+
+/* Right panel: the form */
+.register-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.register-card { width: 100%; max-width: 26rem; }
+
+.register-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.register-row a { font-family: var(--ca-font-ui); font-size: 0.875rem; }
+
+.register-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+}
+.register-divider::before,
+.register-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--ca-line);
+}
+
+@media (min-width: 992px) {
+  .register-shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .register-aside {
+    padding: 3rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--ca-edge);
+  }
+  .register-aside .section-drawing { height: 20rem; }
+}
