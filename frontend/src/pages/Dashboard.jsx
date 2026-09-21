@@ -1,11 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getDashboardStats } from '../api/dashboard';
-import ChartDisplay from '../components/ChartDisplay'; // see note below
+import ChartDisplay from '../components/ChartDisplay';
+
+import '../theme.css';
+import './dashboard.css';
 
 const STATUS_COLORS = {
   COMPLETED: '#16a34a',
   FAILED: '#dc2626',
+  CLONING: '#2563eb',
+  PARSING: '#2563eb',
+  ANALYZING_DEPENDENCIES: '#2563eb',
+  PENDING: '#64748b',
 };
 
 function Dashboard() {
@@ -15,125 +23,280 @@ function Dashboard() {
   useEffect(() => {
     getDashboardStats()
       .then(setStats)
-      .catch(() => setError('Failed to load dashboard stats. Is the backend running?'));
+      .catch(() =>
+        setError('Failed to load dashboard stats. Is the backend running?')
+      );
   }, []);
 
-  if (error) return <p style={{ color: '#dc2626' }}>{error}</p>;
-  if (!stats) return <p>Loading...</p>;
+  if (error) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-error">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-loading">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   if (stats.totalProjects === 0) {
     return (
-      <div>
-        <h1>Dashboard</h1>
-        <p style={{ color: '#64748b' }}>You haven't analyzed any projects yet.</p>
-        <Link to="/projects/new">
-          <button>Add Your First Project</button>
-        </Link>
+      <div className="dashboard-page">
+        <div className="dashboard-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p>Overview of your analyzed codebases.</p>
+          </div>
+        </div>
+
+        <div className="dashboard-empty">
+          <div className="empty-icon">📊</div>
+          <h2>No projects yet</h2>
+          <p>
+            You haven't analyzed any projects yet. Add your first project
+            to start exploring your codebase.
+          </p>
+
+          <Link to="/projects/new" className="dashboard-primary-btn">
+            Add Your First Project
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <div className="dashboard-page">
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        <StatCard label="Projects" value={stats.totalProjects} />
-        <StatCard label="Files" value={stats.totalFiles} />
-        <StatCard label="Classes" value={stats.totalClasses} />
-        <StatCard label="Methods" value={stats.totalMethods} />
-        <StatCard label="Dependencies" value={stats.totalDependencies} />
+      {/* Header */}
+      <div className="dashboard-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Overview of your analyzed codebases.</p>
+        </div>
+
+        <Link to="/projects/new" className="dashboard-primary-btn">
+          + Add Project
+        </Link>
+      </div>
+
+      {/* Statistics */}
+      <div className="stats-grid">
+        <StatCard
+          label="Projects"
+          value={stats.totalProjects}
+          icon="📁"
+        />
+
+        <StatCard
+          label="Files"
+          value={stats.totalFiles}
+          icon="📄"
+        />
+
+        <StatCard
+          label="Classes"
+          value={stats.totalClasses}
+          icon="▣"
+        />
+
+        <StatCard
+          label="Methods"
+          value={stats.totalMethods}
+          icon="ƒ"
+        />
+
+        <StatCard
+          label="Dependencies"
+          value={stats.totalDependencies}
+          icon="↗"
+        />
+
         <StatCard
           label="Open Code Smells"
           value={stats.totalCodeSmells}
+          icon="⚠"
           color={stats.totalCodeSmells > 0 ? '#d97706' : '#16a34a'}
         />
       </div>
 
-      <div style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-        {stats.completedProjects} completed · {stats.inProgressProjects} in progress ·{' '}
-        <span style={{ color: stats.failedProjects > 0 ? '#dc2626' : 'inherit' }}>
-          {stats.failedProjects} failed
-        </span>
+      {/* Project status summary */}
+      <div className="status-summary">
+        <div className="status-item">
+          <span className="status-dot completed"></span>
+          <strong>{stats.completedProjects}</strong>
+          <span>Completed</span>
+        </div>
+
+        <div className="status-item">
+          <span className="status-dot progress"></span>
+          <strong>{stats.inProgressProjects}</strong>
+          <span>In Progress</span>
+        </div>
+
+        <div className="status-item">
+          <span className="status-dot failed"></span>
+          <strong>{stats.failedProjects}</strong>
+          <span>Failed</span>
+        </div>
       </div>
 
+      {/* Most complex class */}
       {stats.topComplexClassName && (
-        <div
-          style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fca5a5',
-            borderRadius: '8px',
-            padding: '1rem',
-            marginBottom: '2rem',
-          }}
-        >
-          <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.25rem' }}>
-            Most complex class across all your projects
-          </p>
-          <Link
-            to={`/projects/${stats.topComplexClassProjectId}/classes/${stats.topComplexClassId}`}
-            style={{ fontWeight: 'bold', fontSize: '1.1rem' }}
-          >
-            {stats.topComplexClassName}
-          </Link>
-          <span style={{ color: '#64748b' }}>
-            {' '}in {stats.topComplexClassProjectName} — complexity score {stats.topComplexClassScore}
-          </span>
+        <div className="complexity-card">
+          <div className="complexity-icon">⚠</div>
+
+          <div className="complexity-content">
+            <div className="complexity-label">
+              Most Complex Class
+            </div>
+
+            <Link
+              to={`/projects/${stats.topComplexClassProjectId}/classes/${stats.topComplexClassId}`}
+              className="complexity-class-name"
+            >
+              {stats.topComplexClassName}
+            </Link>
+
+            <div className="complexity-meta">
+              {stats.topComplexClassProjectName}
+              <span>•</span>
+              Complexity score: {stats.topComplexClassScore}
+            </div>
+          </div>
         </div>
       )}
 
-      <h3>Classes per Project</h3>
-      <ChartDisplay projects={stats.projects} />
+      {/* Chart */}
+      <section className="dashboard-section">
+        <div className="section-header">
+          <div>
+            <h2>Classes per Project</h2>
+            <p>Number of classes detected in each project.</p>
+          </div>
+        </div>
 
-      <h3 style={{ marginTop: '2rem' }}>Your Projects</h3>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
-            <th style={{ padding: '0.5rem' }}>Project</th>
-            <th style={{ padding: '0.5rem' }}>Status</th>
-            <th style={{ padding: '0.5rem' }}>Files</th>
-            <th style={{ padding: '0.5rem' }}>Classes</th>
-            <th style={{ padding: '0.5rem' }}>Smells</th>
-            <th style={{ padding: '0.5rem' }}>Added</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stats.projects.map((p) => (
-            <tr key={p.projectId} style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <td style={{ padding: '0.5rem' }}>
-                <Link to={`/projects/${p.projectId}`}>{p.projectName}</Link>
-              </td>
-              <td style={{ padding: '0.5rem', color: STATUS_COLORS[p.status] || '#64748b' }}>
-                {p.status}
-              </td>
-              <td style={{ padding: '0.5rem' }}>{p.fileCount}</td>
-              <td style={{ padding: '0.5rem' }}>{p.classCount}</td>
-              <td style={{ padding: '0.5rem' }}>{p.smellCount > 0 ? p.smellCount : '—'}</td>
-              <td style={{ padding: '0.5rem', color: '#64748b', fontSize: '0.85rem' }}>
-                {new Date(p.uploadedAt).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="chart-card">
+          <ChartDisplay projects={stats.projects} />
+        </div>
+      </section>
+
+      {/* Projects table */}
+      <section className="dashboard-section">
+        <div className="section-header">
+          <div>
+            <h2>Your Projects</h2>
+            <p>Overview of your analyzed repositories.</p>
+          </div>
+
+          <Link to="/projects" className="view-all-link">
+            View all →
+          </Link>
+        </div>
+
+        <div className="projects-table-card">
+          <div className="table-wrapper">
+            <table className="projects-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Status</th>
+                  <th>Files</th>
+                  <th>Classes</th>
+                  <th>Smells</th>
+                  <th>Added</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {stats.projects.map((p) => (
+                  <tr key={p.projectId}>
+                    <td>
+                      <Link
+                        to={`/projects/${p.projectId}`}
+                        className="project-name-link"
+                      >
+                        {p.projectName}
+                      </Link>
+                    </td>
+
+                    <td>
+                      <span
+                        className="project-status"
+                        style={{
+                          color:
+                            STATUS_COLORS[p.status] || '#64748b',
+                        }}
+                      >
+                        <span
+                          className="status-indicator"
+                          style={{
+                            backgroundColor:
+                              STATUS_COLORS[p.status] || '#64748b',
+                          }}
+                        ></span>
+
+                        {p.status}
+                      </span>
+                    </td>
+
+                    <td>{p.fileCount}</td>
+
+                    <td>{p.classCount}</td>
+
+                    <td>
+                      {p.smellCount > 0 ? (
+                        <span className="smell-count">
+                          {p.smellCount}
+                        </span>
+                      ) : (
+                        <span className="no-smells">—</span>
+                      )}
+                    </td>
+
+                    <td className="date-cell">
+                      {new Date(p.uploadedAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, icon, color }) {
   return (
-    <div
-      style={{
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '1rem 1.5rem',
-        minWidth: '120px',
-      }}
-    >
-      <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: color || '#1e293b' }}>{value}</div>
-      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>{label}</div>
+    <div className="stat-card">
+      <div className="stat-card-top">
+        <div className="stat-icon">
+          {icon}
+        </div>
+      </div>
+
+      <div
+        className="stat-value"
+        style={{ color: color || '#9eb0cd' }}
+      >
+        {value}
+      </div>
+
+      <div className="stat-label">
+        {label}
+      </div>
     </div>
   );
 }
 
 export default Dashboard;
+

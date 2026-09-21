@@ -1,0 +1,176 @@
+/* Navigation bar styles. Load after bootstrap.min.css and theme.css. */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: var(--ca-chalk);
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.topbar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72rem;
+  min-height: 3.5rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.topbar-brand {
+  padding: 0.75rem 0;
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+  color: var(--ca-ink);
+  text-decoration: none;
+}
+.topbar-brand:hover { color: var(--ca-ink); }
+
+/* Hamburger button: three bars drawn in CSS, turns into an X when open */
+.topbar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+}
+
+.topbar-bars,
+.topbar-bars::before,
+.topbar-bars::after {
+  display: block;
+  width: 1.25rem;
+  height: 2px;
+  background: currentColor;
+  transition: top 0.15s, transform 0.15s, background-color 0.15s;
+}
+.topbar-bars { position: relative; }
+.topbar-bars::before,
+.topbar-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+.topbar-bars::before { top: -6px; }
+.topbar-bars::after { top: 6px; }
+
+.topbar-toggle[aria-expanded="true"] .topbar-bars { background: transparent; }
+.topbar-toggle[aria-expanded="true"] .topbar-bars::before { top: 0; transform: rotate(45deg); }
+.topbar-toggle[aria-expanded="true"] .topbar-bars::after { top: 0; transform: rotate(-45deg); }
+
+/* Small screens: menu drops below the bar */
+.topbar-menu {
+  display: none;
+  width: 100%;
+  padding-bottom: 0.75rem;
+}
+.topbar-menu.is-open { display: block; }
+
+.topbar-links {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topbar-link {
+  display: block;
+  padding: 0.625rem 0.75rem;
+  border-left: 3px solid transparent;
+  font-family: var(--ca-font-ui);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--ca-ink-muted);
+  text-decoration: none;
+}
+.topbar-link:hover {
+  background: var(--ca-paper);
+  color: var(--ca-ink);
+}
+.topbar-link.is-active {
+  background: var(--ca-paper);
+  border-left-color: var(--ca-plumb);
+  color: var(--ca-ink);
+}
+
+/* Desktop: links sit in the bar, active link gets an underline */
+@media (min-width: 768px) {
+  .topbar-toggle { display: none; }
+
+  .topbar-menu,
+  .topbar-menu.is-open {
+    display: flex;
+    width: auto;
+    padding: 0;
+    align-self: stretch;
+  }
+
+  .topbar-links { flex-direction: row; gap: 0.5rem; }
+  .topbar-links li { display: flex; }
+
+  .topbar-link {
+    display: flex;
+    align-items: center;
+    padding: 0 0.875rem;
+    margin-bottom: -1px; /* underline overlaps the bar's bottom border */
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+  }
+  .topbar-link:hover { background: transparent; }
+  .topbar-link.is-active {
+    background: transparent;
+    border-bottom-color: var(--ca-plumb);
+  }
+}
+
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 0.75rem;
+}
+
+.topbar-username {
+  color: #d1d6e1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.topbar-logout {
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #dc3545;
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topbar-logout:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+
+
+
+@media (max-width: 768px) {
+  .topbar-user {
+    margin-left: 0;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #dee2e6;
+    width: 100%;
+    justify-content: space-between;
+  }
+}

@@ -1,11 +1,27 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCodeSmells } from '../api/codeSmells';
 
+import '../theme.css';
+import './code-smells.css';
+
 const SEVERITY_COLORS = {
-  HIGH: { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' },
-  MEDIUM: { bg: '#fffbeb', text: '#d97706', border: '#fcd34d' },
-  LOW: { bg: '#f0f9ff', text: '#0284c7', border: '#7dd3fc' },
+  HIGH: {
+    bg: '#fef2f2',
+    text: '#dc2626',
+    border: '#fca5a5',
+  },
+  MEDIUM: {
+    bg: '#fffbeb',
+    text: '#d97706',
+    border: '#fcd34d',
+  },
+  LOW: {
+    bg: '#f0f9ff',
+    text: '#0284c7',
+    border: '#7dd3fc',
+  },
 };
 
 const SMELL_LABELS = {
@@ -17,6 +33,7 @@ const SMELL_LABELS = {
 
 function CodeSmells() {
   const { id } = useParams();
+
   const [smells, setSmells] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,7 +47,10 @@ function CodeSmells() {
   }, [id]);
 
   const filteredSmells = useMemo(() => {
-    if (severityFilter === 'ALL') return smells;
+    if (severityFilter === 'ALL') {
+      return smells;
+    }
+
     return smells.filter((s) => s.severity === severityFilter);
   }, [smells, severityFilter]);
 
@@ -42,75 +62,192 @@ function CodeSmells() {
     };
   }, [smells]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) {
+    return (
+      <div className="code-smells-page">
+        <div className="code-smells-state">
+          <div className="state-spinner"></div>
+          <p>Loading code smells...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="code-smells-page">
+        <div className="code-smells-state code-smells-error">
+          <span className="state-icon">!</span>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Code Smells</h1>
-      <p style={{ color: '#64748b' }}>
-        Automatically detected patterns that may indicate design issues, based on method counts,
-        parameter counts, and dependency counts extracted from the codebase.
-      </p>
+    <div className="code-smells-page">
 
-      <div style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
-        {['ALL', 'HIGH', 'MEDIUM', 'LOW'].map((level) => (
-          <button
-            key={level}
-            onClick={() => setSeverityFilter(level)}
-            style={{
-              backgroundColor: severityFilter === level ? '#2563eb' : '#e2e8f0',
-              color: severityFilter === level ? '#fff' : '#334155',
-            }}
-          >
-            {level === 'ALL' ? `All (${smells.length})` : `${level} (${counts[level]})`}
-          </button>
-        ))}
-      </div>
+      {/* Header */}
+      <header className="code-smells-header">
+        <div>
+          <h1>Code Smells</h1>
+          <p>
+            Automatically detected patterns that may indicate design issues,
+            based on method counts, parameter counts, and dependency counts
+            extracted from the codebase.
+          </p>
+        </div>
 
+        <Link
+          to={`/projects/${id}`}
+          className="back-project-link"
+        >
+          ← Project Overview
+        </Link>
+      </header>
+
+      {/* Severity summary */}
+      <section className="smell-summary">
+
+        <button
+          className={`severity-filter ${
+            severityFilter === 'ALL' ? 'active' : ''
+          }`}
+          onClick={() => setSeverityFilter('ALL')}
+        >
+          <span className="filter-count">{smells.length}</span>
+          <span className="filter-label">All</span>
+        </button>
+
+        <button
+          className={`severity-filter severity-high ${
+            severityFilter === 'HIGH' ? 'active' : ''
+          }`}
+          onClick={() => setSeverityFilter('HIGH')}
+        >
+          <span className="filter-count">{counts.HIGH}</span>
+          <span className="filter-label">High</span>
+        </button>
+
+        <button
+          className={`severity-filter severity-medium ${
+            severityFilter === 'MEDIUM' ? 'active' : ''
+          }`}
+          onClick={() => setSeverityFilter('MEDIUM')}
+        >
+          <span className="filter-count">{counts.MEDIUM}</span>
+          <span className="filter-label">Medium</span>
+        </button>
+
+        <button
+          className={`severity-filter severity-low ${
+            severityFilter === 'LOW' ? 'active' : ''
+          }`}
+          onClick={() => setSeverityFilter('LOW')}
+        >
+          <span className="filter-count">{counts.LOW}</span>
+          <span className="filter-label">Low</span>
+        </button>
+
+      </section>
+
+      {/* Empty state */}
       {smells.length === 0 && (
-        <p style={{ color: '#16a34a' }}>
-          No code smells detected — this codebase looks well-structured by these heuristics!
-        </p>
+        <div className="smells-empty success-state">
+          <div className="empty-icon">✓</div>
+          <h3>No code smells detected</h3>
+          <p>
+            This codebase looks well-structured according to the
+            currently configured heuristics.
+          </p>
+        </div>
       )}
 
+      {/* Filter empty state */}
       {smells.length > 0 && filteredSmells.length === 0 && (
-        <p style={{ color: '#94a3b8' }}>No smells at this severity level.</p>
+        <div className="smells-empty">
+          <div className="empty-icon muted">—</div>
+          <h3>No smells at this severity level</h3>
+          <p>
+            Try selecting another severity level to see more results.
+          </p>
+        </div>
       )}
 
-      {filteredSmells.map((smell, index) => {
-        const colors = SEVERITY_COLORS[smell.severity] || SEVERITY_COLORS.LOW;
+      {/* Results */}
+      {filteredSmells.length > 0 && (
+        <section className="smells-section">
 
-        return (
-          <div
-            key={index}
-            style={{
-              backgroundColor: colors.bg,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '8px',
-              padding: '1rem',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <Link
-                to={`/projects/${id}/classes/${smell.classId}`}
-                style={{ fontWeight: 'bold', color: '#1e293b' }}
-              >
-                {smell.className}
-              </Link>
-              <span style={{ color: colors.text, fontWeight: 'bold', fontSize: '0.85rem' }}>
-                {SMELL_LABELS[smell.smellType] || smell.smellType} · {smell.severity}
+          <div className="smells-section-header">
+            <div>
+              <h2>Detected Issues</h2>
+              <span>
+                Showing {filteredSmells.length}{' '}
+                {filteredSmells.length === 1 ? 'issue' : 'issues'}
               </span>
             </div>
-            <p style={{ marginTop: '0.5rem', marginBottom: 0, color: '#475569' }}>
-              {smell.description}
-            </p>
           </div>
-        );
-      })}
+
+          <div className="smells-list">
+            {filteredSmells.map((smell, index) => {
+              const colors =
+                SEVERITY_COLORS[smell.severity] ||
+                SEVERITY_COLORS.LOW;
+
+              return (
+                <article
+                  key={index}
+                  className="smell-card"
+                  style={{
+                    '--smell-bg': colors.bg,
+                    '--smell-text': colors.text,
+                    '--smell-border': colors.border,
+                  }}
+                >
+
+                  <div className="smell-card-header">
+
+                    <div className="smell-class-info">
+                      <span className="smell-index">
+                        #{String(index + 1).padStart(2, '0')}
+                      </span>
+
+                      <Link
+                        to={`/projects/${id}/classes/${smell.classId}`}
+                        className="smell-class-link"
+                      >
+                        {smell.className}
+                      </Link>
+                    </div>
+
+                    <div className="smell-meta">
+                      <span className="smell-type">
+                        {SMELL_LABELS[smell.smellType] ||
+                          smell.smellType}
+                      </span>
+
+                      <span className="severity-badge">
+                        {smell.severity}
+                      </span>
+                    </div>
+
+                  </div>
+
+                  <div className="smell-description">
+                    {smell.description}
+                  </div>
+
+                </article>
+              );
+            })}
+          </div>
+
+        </section>
+      )}
+
     </div>
   );
 }
 
 export default CodeSmells;
+

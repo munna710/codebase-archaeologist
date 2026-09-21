@@ -16,7 +16,7 @@ import Chat from './pages/Chat';
 import CodeSmells from './pages/CodeSmells';
 import Debug from './pages/Debug';
 import Commits from './pages/Commits';
-
+import Navbar from './components/Navbar';
 
 function Layout() {
   const location = useLocation();
@@ -27,7 +27,7 @@ function Layout() {
 
   return (
     <>
-      {!hideNavBar && <NavBar />}
+      {!hideNavBar && <Navbar />}
       <AppRoutes />
     </>
   );

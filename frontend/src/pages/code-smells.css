@@ -1,0 +1,469 @@
+
+/* =========================================
+   Code Smells Page
+   ========================================= */
+
+.code-smells-page {
+  width: min(96vw, 1600px);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  font-family: var(--ca-font-ui);
+  color: var(--ca-ink);
+}
+
+
+/* =========================================
+   Header
+   ========================================= */
+
+.code-smells-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.code-smells-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ca-ink);
+}
+
+.code-smells-header p {
+  max-width: 850px;
+  margin: 0;
+  color: var(--ca-ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.back-project-link {
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+  color: #2563eb;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-project-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   Severity Summary
+   ========================================= */
+
+.smell-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+.severity-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  min-height: 68px;
+  padding: 0.8rem 1rem;
+
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+
+  background: #fff;
+  color: #475569;
+
+  cursor: pointer;
+  text-align: left;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.severity-filter:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.severity-filter.active {
+  border-color: #7db7e8;
+  box-shadow: 0 0 0 2px rgba(125, 183, 232, 0.15);
+}
+
+.filter-count {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #cbd5e1;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ca-ink-muted);
+}
+
+.severity-filter.active .filter-count {
+  color: #334155;
+}
+
+
+/* Severity-specific count colors */
+
+.severity-high .filter-count {
+  color: #dc2626;
+}
+
+.severity-medium .filter-count {
+  color: #d97706;
+}
+
+.severity-low .filter-count {
+  color: #0284c7;
+}
+
+
+/* =========================================
+   Section
+   ========================================= */
+
+.smells-section {
+  margin-top: 1.5rem;
+}
+
+.smells-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.smells-section-header h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ca-ink);
+}
+
+.smells-section-header span {
+  color: var(--ca-ink-muted);
+  font-size: 0.85rem;
+}
+
+
+/* =========================================
+   Smell List
+   ========================================= */
+
+.smells-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.smell-card {
+  padding: 1rem 1.15rem;
+
+  background: var(--smell-bg);
+  border: 1px solid var(--smell-border);
+  border-radius: 14px;
+
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.smell-card:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   Smell Card Header
+   ========================================= */
+
+.smell-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.smell-class-info {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.smell-index {
+  flex-shrink: 0;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--smell-text);
+  opacity: 0.75;
+}
+
+.smell-class-link {
+  overflow: hidden;
+
+  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smell-class-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   Smell Metadata
+   ========================================= */
+
+.smell-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.smell-type {
+  color: var(--smell-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.severity-badge {
+  padding: 0.22rem 0.55rem;
+
+  border: 1px solid var(--smell-border);
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--smell-text);
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+
+/* =========================================
+   Description
+   ========================================= */
+
+.smell-description {
+  padding-left: 2rem;
+
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   Empty / Loading / Error States
+   ========================================= */
+
+.smells-empty,
+.code-smells-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 240px;
+  padding: 2rem;
+
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+
+  background: #fff;
+
+  text-align: center;
+}
+
+.smells-empty h3 {
+  margin: 0.75rem 0 0.35rem;
+
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ca-ink);
+}
+
+.smells-empty p,
+.code-smells-state p {
+  max-width: 500px;
+  margin: 0;
+
+  color: var(--ca-ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #dcfce7;
+  color: #16a34a;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.empty-icon.muted {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.success-state {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+
+/* Error */
+
+.code-smells-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.code-smells-error .state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  margin-bottom: 0.75rem;
+
+  border-radius: 50%;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-weight: 700;
+}
+
+
+/* Loading */
+
+.state-spinner {
+  width: 28px;
+  height: 28px;
+
+  margin-bottom: 0.75rem;
+
+  border: 3px solid #e2e8f0;
+  border-top-color: #7db7e8;
+  border-radius: 50%;
+
+  animation: code-smells-spin 0.8s linear infinite;
+}
+
+@keyframes code-smells-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 900px) {
+  .code-smells-header {
+    flex-direction: column;
+  }
+
+  .back-project-link {
+    margin-top: 0;
+  }
+
+  .smell-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .smell-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smell-meta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .code-smells-page {
+    width: 100%;
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .code-smells-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .smell-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .severity-filter {
+    min-height: 58px;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .filter-count {
+    font-size: 1.15rem;
+  }
+
+  .smell-card {
+    padding: 0.9rem;
+  }
+
+  .smell-class-info {
+    width: 100%;
+  }
+
+  .smell-class-link {
+    max-width: calc(100vw - 100px);
+  }
+
+  .smell-meta {
+    flex-wrap: wrap;
+  }
+
+  .smell-description {
+    padding-left: 0;
+    font-size: 0.85rem;
+  }
+}
+

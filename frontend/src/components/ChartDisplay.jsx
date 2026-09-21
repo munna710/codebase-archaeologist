@@ -13,7 +13,7 @@ function ChartDisplay({ projects }) {
           <XAxis dataKey="name" fontSize={12} />
           <YAxis allowDecimals={false} />
           <Tooltip />
-          <Bar dataKey="classes" fill="#2563eb" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="classes" fill="#7ea2ef" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
