@@ -1,0 +1,406 @@
+/* Login page styles. Load after bootstrap.min.css and theme.css. */
+
+
+
+
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* Left panel: brand and the layer key */
+
+
+
+
+/* Right panel: the form */
+.login-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.login-card { width: 100%; max-width: 26rem; }
+
+.login-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.login-row a { font-family: var(--ca-font-ui); font-size: 0.875rem; }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--ca-line);
+}
+
+@media (min-width: 992px) {
+  .login-shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .login-aside {
+    padding: 3rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--ca-edge);
+  }
+  .login-aside .section-drawing { height: 20rem; }
+}
+
+
+
+/* Register page styles. Same design as login.css.
+   Load after bootstrap.min.css and theme.css. */
+
+.register-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* Left panel: brand and the layer key */
+.register-aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.register-brand {
+  margin: 0 0 1rem;
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.register-title {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  font-size: clamp(1.625rem, 3.5vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.register-aside .section-drawing { height: 7.5rem; }
+.register-aside .stratum span:last-child { font-weight: 400; }
+
+/* Right panel: the form */
+.register-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.register-card { width: 100%; max-width: 26rem; }
+
+.register-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.register-row a { font-family: var(--ca-font-ui); font-size: 0.875rem; }
+
+.register-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+  font-size: 0.875rem;
+}
+.register-divider::before,
+.register-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--ca-line);
+}
+
+@media (min-width: 992px) {
+  .register-shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .register-aside {
+    padding: 3rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--ca-edge);
+  }
+  .register-aside .section-drawing { height: 20rem; }
+}
+
+
+.add-page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.add-header { margin-bottom: 1.5rem; }
+
+/* Source switch: two buttons that read as one control */
+.add-tabs { display: flex; width: 100%; }
+.add-tabs .btn { flex: 1; }
+
+/* Progress line while the project is created and analyzed */
+.add-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--ca-ink-muted);
+  font-family: var(--ca-font-ui);
+}
+
+/* File picker: match the text inputs */
+.add-page input[type="file"].form-control {
+  padding: 0.5rem 0.75rem;
+  font-family: var(--ca-font-ui);
+  font-size: 0.9375rem;
+}
+.add-page input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--ca-edge);
+  border-radius: var(--bs-border-radius);
+  background: var(--ca-chalk);
+  color: var(--ca-ink);
+  font-family: var(--ca-font-ui);
+  font-weight: 500;
+}
+
+.add-page input[type="file"]:hover::file-selector-button {
+  color: #000000 !important;
+}
+
+
+
+.add-page .form-text {
+  font-family: var(--ca-font-ui);
+  font-size: 0.8125rem;
+  color: var(--ca-ink-muted);
+}
+
+
+.explorer-page { 
+  width: min(96vw, 1600px); 
+  margin: 0 auto; 
+  padding: 2.5rem 1.5rem 3rem; 
+} 
+.explorer-header { 
+  margin-bottom: 1.5rem; 
+} 
+.explorer-search-card { 
+  width: 100%; 
+  border: 1px solid #dee2e6; 
+  border-radius: 14px; 
+  margin-bottom: 1.5rem; 
+} 
+.explorer-search-card .form-control { 
+  min-height: 46px; 
+  font-size: 0.95rem; 
+}
+ 
+.explorer-search-info {
+  margin-top: 0.75rem;
+   font-size: 0.85rem;
+    color: #64748b;
+  }
+   /* Files */ 
+.explorer-files { 
+  display: flex; 
+  flex-direction: 
+  column; gap: 1rem; 
+} 
+.explorer-file-card { 
+  width: 100%; 
+  border: 1px solid #dee2e6; 
+  border-radius: 14px; 
+  overflow: hidden; 
+  transition: 
+  border-color 0.2s ease, box-shadow 0.2s ease; 
+} 
+.explorer-file-card:hover { 
+  border-color: #cbd5e1; 
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06); 
+} 
+/* File header */ 
+.explorer-file-header { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; padding-bottom: 1.25rem; 
+  border-bottom: 1px solid #e2e8f0; 
+} 
+.explorer-file-icon { 
+  width: 42px; 
+  height: 42px; 
+  flex-shrink: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  border-radius: 10px; 
+  background: #f1f5f9; 
+  color: #334155; 
+  font-size: 20px; 
+  font-weight: 700; 
+} 
+.explorer-file-info { 
+  min-width: 0;
+ 
+} 
+.explorer-file-name { 
+  margin: 0; font-size: 1.05rem; 
+  font-weight: 700; 
+  color: #fdfdfe; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+} 
+.explorer-file-path { 
+  margin: 4px 0 0; color: #aeb7c3; 
+  font-size: 0.82rem; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; } 
+  /* Classes */ 
+.explorer-classes { 
+  padding-top: 1rem; 
+} 
+.explorer-class { 
+  padding: 0.9rem 0; 
+} 
+.explorer-class + .explorer-class { 
+  border-top: 1px solid #f1f5f9;
+ }
+  
+.explorer-class-header { 
+  display: flex; 
+  align-items: center; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+}
+.explorer-class-icon { 
+  width: 28px; height: 28px; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  border-radius: 7px; 
+  background: #f1f5f9; 
+  color: #334155; 
+  font-size: 13px; 
+  font-weight: 700; 
+} 
+.explorer-class-type { 
+  font-size: 0.78rem; 
+  font-weight: 600;
+   color: #64748b; 
+   text-transform:
+    uppercase; 
+    letter-spacing: 0.03em; 
+} 
+.explorer-class-name { 
+  font-size: 0.98rem; 
+  font-weight: 700; 
+  color: #2563eb; 
+  text-decoration: none; 
+} 
+.explorer-class-name:hover { 
+  color: #1d4ed8; 
+  text-decoration: underline;
+ }
+  
+ .explorer-package {
+   font-size: 0.78rem; 
+   color: #94a3b8;
+    
+   overflow: hidden;
+     
+   text-overflow: ellipsis; 
+   white-space: nowrap;
+   }
+    /* Methods */ 
+    .explorer-methods {
+       margin: 0.75rem 0 0 36px; 
+       padding-left: 0.9rem; 
+       border-left: 2px solid #e2e8f0; 
+      } 
+.explorer-method { 
+  display: flex; 
+  align-items: flex-start; 
+  gap: 7px; 
+  padding: 5px 0; 
+  color: #98a0aa; 
+  font-size: 0.84rem; 
+} 
+.explorer-method-dot { 
+  color: #94a3b8; 
+  line-height: 1.5;
+ } 
+.explorer-method code { 
+  color: #9ca6b4; 
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
+  font-size: 0.8rem; 
+} .explorer-method code strong { 
+  color: #d7dff0; 
+  font-weight: 700; } 
+  /* Empty state */ 
+.explorer-empty-card { 
+  border: 1px solid #dee2e6; 
+  border-radius: 14px; 
+  text-align: center; 
+} 
+.explorer-empty-card .card-body { 
+  padding: 3rem 1.5rem;
+ } 
+ .explorer-empty-icon { 
+  width: 52px; 
+  height: 52px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+   margin: 0 auto 1rem; 
+   border-radius: 12px; 
+   background: #f1f5f9; 
+   color: #64748b; 
+   font-size: 25px; 
+   font-weight: 700; } 
+   .explorer-empty-card h3 { 
+    margin-bottom: 0.4rem; 
+    font-size: 1.05rem; 
+    font-weight: 700; 
+    color: #0f172a; } 
+    .explorer-empty-card p { 
+      margin: 0; 
+      color: #64748b; 
+      font-size: 0.9rem; } 
+      /* Loading */ 
+      .explorer-loading {
+         min-height: 300px; 
+         display: flex; 
+         align-items: center; 
+         justify-content: center; gap: 10px; color: #64748b; } 
+         /* Responsive */ 
+         
+         @media (max-width: 768px) { .explorer-page { 
+          width: 100%; 
+          padding: 1.5rem 1rem 2.5rem; 
+        } .explorer-class-header {
+           align-items: flex-start; }
+            .explorer-package { width: 100%; margin-left: 36px; } 
+            .explorer-methods { margin-left: 10px; } }

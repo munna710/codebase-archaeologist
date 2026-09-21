@@ -1,10 +1,21 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getDocumentation, generateDocumentation, downloadMarkdown, downloadPdf } from '../api/documentation';
+import {
+  getDocumentation,
+  generateDocumentation,
+  downloadMarkdown,
+  downloadPdf,
+} from '../api/documentation';
 import MarkdownContent from '../components/MarkdownContent';
+
+import '../theme.css';
+// import './login.css';
+import './documentation.css';
 
 function Documentation() {
   const { id } = useParams();
+
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -13,6 +24,7 @@ function Documentation() {
 
   const loadDocs = () => {
     setLoading(true);
+
     getDocumentation(id)
       .then(setDocs)
       .catch(() => setError('Failed to load documentation.'))
@@ -26,6 +38,7 @@ function Documentation() {
   const handleGenerate = async () => {
     setGenerating(true);
     setError(null);
+
     try {
       const updatedDocs = await generateDocumentation(id);
       setDocs(updatedDocs);
@@ -37,56 +50,154 @@ function Documentation() {
   };
 
   const handleDownload = async (type) => {
-  setDownloading(type);
-  try {
-    if (type === 'markdown') {
-      await downloadMarkdown(id);
-    } else {
-      await downloadPdf(id);
-    }
-  } catch (err) {
-    setError('Failed to download the file. Please try again.');
-  } finally {
-    setDownloading(null);
-  }
-};
+    setDownloading(type);
+    setError(null);
 
-  if (loading) return <p>Loading...</p>;
+    try {
+      if (type === 'markdown') {
+        await downloadMarkdown(id);
+      } else {
+        await downloadPdf(id);
+      }
+    } catch (err) {
+      setError('Failed to download the file. Please try again.');
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="documentation-page">
+        <div className="documentation-loading">
+          <span className="spinner-border spinner-border-sm" />
+          <span>Loading documentation…</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <div>
-      <h1>Documentation</h1>
-        <div style={{ marginBottom: '1rem' }}>
-        <button onClick={() => handleDownload('markdown')} disabled={downloading !== null}>
-          {downloading === 'markdown' ? 'Preparing...' : 'Export as Markdown'}
-        </button>
-        {' '}
-        <button onClick={() => handleDownload('pdf')} disabled={downloading !== null}>
-          {downloading === 'pdf' ? 'Preparing...' : 'Export as PDF'}
-        </button>
+    <main className="documentation-page">
+      {/* Header */}
+      <header className="documentation-header">
+        <div>
+          <h1 className="h2 mb-1">Documentation</h1>
+          <p className="text-body-secondary mb-0">
+            AI-generated documentation and project overview.
+          </p>
+        </div>
+      </header>
+
+      {/* Actions */}
+      <div className="card documentation-actions-card">
+        <div className="card-body p-4">
+          <div className="documentation-actions">
+            <div className="documentation-export-actions">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => handleDownload('markdown')}
+                disabled={downloading !== null}
+              >
+                {downloading === 'markdown'
+                  ? 'Preparing…'
+                  : 'Export as Markdown'}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => handleDownload('pdf')}
+                disabled={downloading !== null}
+              >
+                {downloading === 'pdf'
+                  ? 'Preparing…'
+                  : 'Export as PDF'}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleGenerate}
+              disabled={generating}
+            >
+              {generating ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" />
+                  Generating…
+                </>
+              ) : (
+                'Generate Documentation'
+              )}
+            </button>
+          </div>
+
+          {generating && (
+            <div className="documentation-status">
+              <span className="spinner-border spinner-border-sm" />
+              <span>
+                Generating documentation… This can take a while.
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <button onClick={handleGenerate} disabled={generating}>
-        {generating ? 'Generating... (this can take a while)' : 'Generate Documentation'}
-      </button>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {docs.length === 0 && !generating && (
-        <p>No documentation generated yet. Click the button above to generate it.</p>
+      {/* Error */}
+      {error && (
+        <div className="alert alert-danger documentation-alert" role="alert">
+          {error}
+        </div>
       )}
 
-      {docs.map((doc) => (
-        <div
-          key={doc.documentationId}
-          style={{ border: '1px solid #ddd', padding: '1rem', margin: '1rem 0' }}
-        >
-          <h3>{doc.javaClass ? doc.javaClass.className : 'Project Overview'}</h3>
-          <MarkdownContent content={doc.content} />
+      {/* Empty state */}
+      {docs.length === 0 && !generating && (
+        <div className="card documentation-empty-card">
+          <div className="card-body">
+            <div className="documentation-empty-icon">▤</div>
+
+            <h3>No documentation yet</h3>
+
+            <p>
+              Click <strong>Generate Documentation</strong> to analyze the
+              project and create documentation.
+            </p>
+          </div>
         </div>
-      ))}
-    </div>
+      )}
+
+      {/* Documentation cards */}
+      <div className="documentation-list">
+        {docs.map((doc) => (
+          <article
+            key={doc.documentationId}
+            className="card documentation-card"
+          >
+            <div className="documentation-card-header">
+              <div className="documentation-class-icon">
+                ◈
+              </div>
+
+              <h2>
+                {doc.javaClass
+                  ? doc.javaClass.className
+                  : 'Project Overview'}
+              </h2>
+            </div>
+
+            <div className="documentation-card-body">
+              <MarkdownContent content={doc.content} />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="scale-bar" aria-hidden="true" />
+    </main>
   );
 }
 
 export default Documentation;
+

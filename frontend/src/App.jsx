@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -17,6 +17,21 @@ import CodeSmells from './pages/CodeSmells';
 import Debug from './pages/Debug';
 import Commits from './pages/Commits';
 
+
+function Layout() {
+  const location = useLocation();
+
+  const hideNavBar =
+    location.pathname === '/login' ||
+    location.pathname === '/register';
+
+  return (
+    <>
+      {!hideNavBar && <NavBar />}
+      <AppRoutes />
+    </>
+  );
+}
 
 function NavBar() {
   const { user, logoutUser } = useAuth();
@@ -67,8 +82,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NavBar />
-        <AppRoutes />
+        <Layout />
       </AuthProvider>
     </BrowserRouter>
   );

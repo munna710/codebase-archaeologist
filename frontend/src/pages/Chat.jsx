@@ -4,14 +4,18 @@ import { useParams, Link } from 'react-router-dom';
 import { askQuestion } from '../api/chat';
 import MarkdownContent from '../components/MarkdownContent';
 
+import '../theme.css';
+// 
+import './chat.css';
+
 function Chat() {
   const { id } = useParams();
+
   const [question, setQuestion] = useState('');
   const [history, setHistory] = useState([]);
   const [asking, setAsking] = useState(false);
   const [error, setError] = useState(null);
 
-  // Convert our history into the format expected by the backend.
   const buildApiHistory = () => {
     const apiHistory = [];
 
@@ -76,323 +80,142 @@ function Chat() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <main className="chat-page">
       {/* Header */}
-      <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-        }}
-      >
+      <header className="chat-header">
         <div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: '1.25rem',
-              color: '#0f172a',
-            }}
-          >
-            Ask About This Codebase
-          </h1>
-
-          <p
-            style={{
-              margin: '0.25rem 0 0',
-              color: '#64748b',
-              fontSize: '0.85rem',
-            }}
-          >
-            Ask questions about your analyzed project
+          <h1 className="h2 mb-1">Ask About This Codebase</h1>
+          <p className="text-body-secondary mb-0">
+            Ask questions about your analyzed project.
           </p>
         </div>
 
         {history.length > 0 && (
           <button
+            type="button"
+            className="btn btn-outline-secondary"
             onClick={handleNewConversation}
-            style={{
-              backgroundColor: '#64748b',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '0.5rem 0.8rem',
-              cursor: 'pointer',
-            }}
           >
             New Chat
           </button>
         )}
-      </div>
+      </header>
 
-      {/* Chat area */}
-      <div
-        style={{
-          flex: 1,
-          width: '100%',
-          maxWidth: '900px',
-          margin: '0 auto',
-          padding: '2rem 1rem 8rem',
-          boxSizing: 'border-box',
-        }}
-      >
+      {/* Chat content */}
+      <div className="chat-content">
         {/* Empty state */}
         {history.length === 0 && !asking && (
-          <div
-            style={{
-              textAlign: 'center',
-              marginTop: '20vh',
-              color: '#64748b',
-            }}
-          >
-            <h2
-              style={{
-                color: '#0f172a',
-                marginBottom: '0.5rem',
-              }}
-            >
-              Ask about your codebase
-            </h2>
+          <div className="chat-empty">
+            <div className="chat-empty-icon">✦</div>
 
-            <p>
-              Try questions like:
-            </p>
+            <h2>Ask about your codebase</h2>
 
-            <p
-              style={{
-                fontSize: '0.9rem',
-                color: '#94a3b8',
-              }}
-            >
-              "Where is authentication handled?"
-              <br />
-              "How does the application find an owner?"
-              <br />
-              "What does this service depend on?"
-            </p>
+            <p>Try questions like:</p>
+
+            <div className="chat-examples">
+              <span>"Where is authentication handled?"</span>
+              <span>"How does the application find an owner?"</span>
+              <span>"What does this service depend on?"</span>
+            </div>
           </div>
         )}
 
         {/* Conversation */}
-        {history.map((entry, index) => (
-          <div key={index}>
-            {/* USER MESSAGE */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                marginBottom: '1rem',
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '75%',
-                  backgroundColor: '#2563eb',
-                  color: '#ffffff',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '16px 16px 4px 16px',
-                  lineHeight: '1.5',
-                  wordBreak: 'break-word',
-                }}
-              >
-                {entry.question}
-              </div>
-            </div>
-
-            {/* AI MESSAGE */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                marginBottom: '1.5rem',
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '80%',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  color: '#1e293b',
-                  padding: '1rem',
-                  borderRadius: '4px 16px 16px 16px',
-                  lineHeight: '1.6',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-                }}
-              >
-                {/* AI answer */}
-                {/* AI answer */}
-                <div style={{ marginBottom: '0.75rem' }}>
-                <MarkdownContent content={entry.answer} />
+        <div className="chat-messages">
+          {history.map((entry, index) => (
+            <div key={index} className="chat-conversation">
+              {/* User message */}
+              <div className="chat-user-row">
+                <div className="chat-user-message">
+                  {entry.question}
                 </div>
+              </div>
 
-                {/* Related classes */}
-                {entry.relevantClasses &&
-                  entry.relevantClasses.length > 0 && (
-                    <div
-                      style={{
-                        marginTop: '1rem',
-                        paddingTop: '0.75rem',
-                        borderTop: '1px solid #e2e8f0',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: '0.8rem',
-                          color: '#64748b',
-                          margin: '0 0 0.5rem',
-                          fontWeight: '600',
-                        }}
-                      >
-                        Related classes
-                      </p>
+              {/* AI message */}
+              <div className="chat-ai-row">
+                <div className="chat-ai-message">
+                  <div className="chat-ai-content">
+                    <MarkdownContent content={entry.answer} />
+                  </div>
 
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '0.5rem',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        {entry.relevantClasses.map((cls) => (
-                          <Link
-                            key={cls.classId}
-                            to={`/projects/${id}/classes/${cls.classId}`}
-                            style={{
-                              fontSize: '0.8rem',
-                              backgroundColor: '#eff6ff',
-                              color: '#2563eb',
-                              padding: '0.3rem 0.65rem',
-                              borderRadius: '999px',
-                              textDecoration: 'none',
-                              border: '1px solid #dbeafe',
-                            }}
-                          >
-                            {cls.className}
-                          </Link>
-                        ))}
+                  {/* Related classes */}
+                  {entry.relevantClasses &&
+                    entry.relevantClasses.length > 0 && (
+                      <div className="chat-related">
+                        <div className="chat-related-title">
+                          Related classes
+                        </div>
+
+                        <div className="chat-related-list">
+                          {entry.relevantClasses.map((cls) => (
+                            <Link
+                              key={cls.classId}
+                              to={`/projects/${id}/classes/${cls.classId}`}
+                              className="chat-related-class"
+                            >
+                              {cls.className}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {/* Thinking indicator */}
-        {asking && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-start',
-              marginBottom: '1rem',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-                padding: '0.75rem 1rem',
-                borderRadius: '4px 16px 16px 16px',
-                color: '#64748b',
-              }}
-            >
-              Thinking...
+          {/* Thinking */}
+          {asking && (
+            <div className="chat-ai-row">
+              <div className="chat-thinking">
+                <span className="spinner-border spinner-border-sm" />
+                <span>Thinking…</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error */}
-        {error && (
-          <div
-            style={{
-              backgroundColor: '#fef2f2',
-              color: '#dc2626',
-              border: '1px solid #fecaca',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-            }}
-          >
-            {error}
-          </div>
-        )}
+          {/* Error */}
+          {error && (
+            <div className="alert alert-danger chat-error" role="alert">
+              {error}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Input area */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: '#ffffff',
-          borderTop: '1px solid #e2e8f0',
-          padding: '1rem',
-        }}
-      >
+      {/* Input */}
+      <div className="chat-input-container">
         <form
           onSubmit={handleSubmit}
-          style={{
-            maxWidth: '900px',
-            margin: '0 auto',
-            display: 'flex',
-            gap: '0.75rem',
-          }}
+          className="chat-input-form"
         >
           <input
             type="text"
+            className="form-control chat-input"
             placeholder="Ask anything about this codebase..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             disabled={asking}
-            style={{
-              flex: 1,
-              padding: '0.8rem 1rem',
-              border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              outline: 'none',
-              fontSize: '0.95rem',
-              boxSizing: 'border-box',
-            }}
           />
 
           <button
             type="submit"
+            className="btn btn-primary chat-send-button"
             disabled={asking || !question.trim()}
-            style={{
-              backgroundColor:
-                asking || !question.trim()
-                  ? '#94a3b8'
-                  : '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '0 1.25rem',
-              cursor:
-                asking || !question.trim()
-                  ? 'not-allowed'
-                  : 'pointer',
-              fontWeight: '600',
-            }}
           >
-            {asking ? '...' : 'Send'}
+            {asking ? (
+              <span className="spinner-border spinner-border-sm" />
+            ) : (
+              'Send'
+            )}
           </button>
         </form>
       </div>
-    </div>
+
+      <div className="scale-bar" aria-hidden="true" />
+    </main>
   );
 }
 
 export default Chat;
+

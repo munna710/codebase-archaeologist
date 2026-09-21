@@ -1,0 +1,294 @@
+
+/* ================================
+   DOCUMENTATION
+   ================================ */
+
+.documentation-page {
+  width: min(96vw, 1600px);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.documentation-header {
+  margin-bottom: 1.5rem;
+}
+
+/* Actions */
+
+.documentation-actions-card {
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.documentation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.documentation-export-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.documentation-actions .btn {
+  min-height: 42px;
+}
+
+.documentation-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: 1rem;
+  padding-top: 1rem;
+
+  border-top: 1px solid #e2e8f0;
+
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Error */
+
+.documentation-alert {
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+}
+
+/* Documentation cards */
+
+.documentation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.documentation-card {
+  width: 100%;
+  max-width: none;
+
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.documentation-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+/* Card header */
+
+.documentation-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 1rem 1.25rem;
+
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.documentation-card-header h2 {
+  margin: 0;
+
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.documentation-class-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+  background: #334155;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Card body */
+
+.documentation-card-body {
+  padding: 1.5rem;
+
+  color: #a8adb5;
+  line-height: 1.7;
+}
+
+/* Markdown styling */
+
+.documentation-card-body h1,
+.documentation-card-body h2,
+.documentation-card-body h3,
+.documentation-card-body h4 {
+  color: #ecf1ff;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.documentation-card-body h1:first-child,
+.documentation-card-body h2:first-child,
+.documentation-card-body h3:first-child {
+  margin-top: 0;
+}
+
+.documentation-card-body p {
+  color: #97a1af;
+  margin-bottom: 1rem;
+}
+
+.documentation-card-body ul,
+.documentation-card-body ol {
+  color: #9da4ac;
+  padding-left: 1.5rem;
+}
+
+.documentation-card-body li {
+  margin-bottom: 0.4rem;
+}
+
+.documentation-card-body code {
+  padding: 0.15rem 0.35rem;
+
+  border-radius: 5px;
+  background: #f1f5f9;
+
+  color: #344c6b;
+  font-size: 0.88em;
+}
+
+.documentation-card-body pre {
+  padding: 1rem;
+
+  border-radius: 10px;
+  background: #0f172a;
+
+  overflow-x: auto;
+}
+
+.documentation-card-body pre code {
+  padding: 0;
+  background: transparent;
+  color: #e2e8f0;
+}
+
+.documentation-card-body blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+
+  border-left: 3px solid #94a3b8;
+
+  color: #2c3d54;
+  background: #f8fafc;
+}
+
+/* Empty state */
+
+.documentation-empty-card {
+  width: 100%;
+
+  border: 1px solid #dee2e6;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.documentation-empty-card .card-body {
+  padding: 3rem 1.5rem;
+}
+
+.documentation-empty-icon {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 1rem;
+
+  border-radius: 12px;
+  background: #f1f5f9;
+
+  color: #3e4e63;
+
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.documentation-empty-card h3 {
+  margin-bottom: 0.4rem;
+
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.documentation-empty-card p {
+  margin: 0;
+
+  color: #a2a9b4;
+  font-size: 0.9rem;
+}
+
+/* Loading */
+
+.documentation-loading {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  color: #64748b;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .documentation-page {
+    width: 100%;
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .documentation-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .documentation-export-actions {
+    flex-direction: column;
+  }
+
+  .documentation-actions .btn {
+    width: 100%;
+  }
+
+  .documentation-card {
+    width: 100%;
+  }
+
+  .documentation-card-body {
+    padding: 1rem;
+  }
+}
+

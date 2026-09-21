@@ -1,10 +1,14 @@
+
 import { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getProjectFiles } from '../api/files';
-import { Link } from 'react-router-dom';
+
+import '../theme.css';
+import './login.css';
 
 function CodeExplorer() {
   const { id } = useParams();
+
   const [files, setFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,8 +21,6 @@ function CodeExplorer() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Filters files down to only classes/methods matching the search term.
-  // Recalculates only when files or searchTerm change, not on every render.
   const filteredFiles = useMemo(() => {
     if (!searchTerm.trim()) return files;
 
@@ -34,86 +36,190 @@ function CodeExplorer() {
               method.methodName.toLowerCase().includes(term)
             );
 
-            // Keep this class if the class name matches, OR any of its methods match.
             if (classMatches || matchingMethods.length > 0) {
               return {
                 ...cls,
-                // If the class itself matched, show all its methods.
-                // If only some methods matched, show just those.
                 methods: classMatches ? cls.methods : matchingMethods,
               };
             }
+
             return null;
           })
           .filter(Boolean);
 
         const fileNameMatches = file.fileName.toLowerCase().includes(term);
 
-        // Keep this file if its name matches, or it has any matching classes.
         if (fileNameMatches || matchingClasses.length > 0) {
           return {
             ...file,
             classes: fileNameMatches ? file.classes : matchingClasses,
           };
         }
+
         return null;
       })
       .filter(Boolean);
   }, [files, searchTerm]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) {
+    return (
+      <main className="explorer-page">
+        <div className="explorer-loading">
+          <span className="spinner-border spinner-border-sm" />
+          <span>Loading code explorer…</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="explorer-page">
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <div>
-      <h1>Code Explorer</h1>
+    <main className="explorer-page">
+      {/* Header */}
+      <header className="explorer-header">
+        <div>
+          <h1 className="h2 mb-1">Code Explorer</h1>
+          <p className="text-body-secondary mb-0">
+            Browse files, classes, and methods in your project.
+          </p>
+        </div>
+      </header>
 
-      <input
-        type="text"
-        placeholder="Search files, classes, or methods..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: '1.5rem' }}
-      />
+      {/* Search */}
+      <div className="card explorer-search-card">
+        <div className="card-body p-4">
+          <label htmlFor="code-search" className="form-label">
+            Search code
+          </label>
 
-      <p style={{ color: '#64748b' }}>
-        Showing {filteredFiles.length} of {files.length} files
-      </p>
+          <input
+            id="code-search"
+            type="text"
+            className="form-control"
+            placeholder="Search files, classes, or methods..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
+          />
 
+          <div className="explorer-search-info">
+            Showing <strong>{filteredFiles.length}</strong> of{' '}
+            <strong>{files.length}</strong> files
+          </div>
+        </div>
+      </div>
+
+      {/* Empty state */}
       {filteredFiles.length === 0 && (
-        <p>No files, classes, or methods match "{searchTerm}".</p>
+        <div className="card explorer-empty-card">
+          <div className="card-body">
+            <div className="explorer-empty-icon">⌕</div>
+
+            <h3>No results found</h3>
+
+            <p>
+              No files, classes, or methods match{' '}
+              <strong>"{searchTerm}"</strong>.
+            </p>
+          </div>
+        </div>
       )}
 
-      {filteredFiles.map((file) => (
-        <div
-          key={file.fileId}
-          style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}
-        >
-          <h3>{file.fileName}</h3>
-          <p style={{ color: '#64748b', fontSize: '0.85rem' }}>{file.filePath}</p>
+      {/* Files */}
+      <div className="explorer-files">
+        {filteredFiles.map((file) => (
+          <div key={file.fileId} className="card explorer-file-card">
+            <div className="card-body p-4">
+              {/* File header */}
+              <div className="explorer-file-header">
+                <div className="explorer-file-icon">
+                  ◫
+                </div>
 
-          {file.classes.map((cls) => (
-            <div key={cls.classId} style={{ marginLeft: '1rem', marginTop: '0.75rem' }}>
-              <strong>{cls.classType}:</strong>{' '}
-              <Link to={`/projects/${id}/classes/${cls.classId}`}>{cls.className}</Link>
-              {' '}
-              <span style={{ color: '#64748b' }}>({cls.packageName})</span>
+                <div className="explorer-file-info">
+                  <h2 className="explorer-file-name">
+                    {file.fileName}
+                  </h2>
 
-              {cls.methods.length > 0 && (
-                <ul>
-                  {cls.methods.map((method) => (
-                    <li key={method.methodId}>
-                      {method.returnType} {method.methodName}({method.parameters})
-                    </li>
+                  <p className="explorer-file-path">
+                    {file.filePath}
+                  </p>
+                </div>
+              </div>
+
+              {/* Classes */}
+              {file.classes.length > 0 && (
+                <div className="explorer-classes">
+                  {file.classes.map((cls) => (
+                    <div
+                      key={cls.classId}
+                      className="explorer-class"
+                    >
+                      <div className="explorer-class-header">
+                        <span className="explorer-class-icon">
+                          ◈
+                        </span>
+
+                        <span className="explorer-class-type">
+                          {cls.classType}
+                        </span>
+
+                        <Link
+                          to={`/projects/${id}/classes/${cls.classId}`}
+                          className="explorer-class-name"
+                        >
+                          {cls.className}
+                        </Link>
+
+                        <span className="explorer-package">
+                          {cls.packageName}
+                        </span>
+                      </div>
+
+                      {/* Methods */}
+                      {cls.methods.length > 0 && (
+                        <div className="explorer-methods">
+                          {cls.methods.map((method) => (
+                            <div
+                              key={method.methodId}
+                              className="explorer-method"
+                            >
+                              <span className="explorer-method-dot">
+                                •
+                              </span>
+
+                              <code>
+                                {method.returnType}{' '}
+                                <strong>{method.methodName}</strong>
+                                ({method.parameters})
+                              </code>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
-          ))}
-        </div>
-      ))}
-    </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="scale-bar" aria-hidden="true" />
+    </main>
   );
 }
 
 export default CodeExplorer;
+
+

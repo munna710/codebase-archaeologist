@@ -1,0 +1,250 @@
+
+/* =========================================
+   Dependency Graph Page
+   ========================================= */
+
+.dependency-page {
+  width: min(96vw, 1600px);
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.dependency-page .add-header {
+  margin-bottom: 1.5rem;
+}
+
+/* Main card */
+
+.dependency-card {
+  width: 100%;
+  max-width: none;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Stats */
+
+.dependency-stats {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.dependency-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.dependency-stat-label {
+  color: #6c757d;
+  font-size: 0.82rem;
+  margin-bottom: 0.15rem;
+}
+
+.dependency-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Toolbar */
+
+.dependency-toolbar {
+  margin-bottom: 1rem;
+}
+
+.dependency-search-wrapper {
+  max-width: 420px;
+}
+
+/* =========================================
+   React Flow container
+   ========================================= */
+
+.dependency-graph-wrapper {
+  width: 100%;
+  height: 680px;
+
+  position: relative;
+
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  background: #f8fafc;
+}
+
+.dependency-graph-wrapper .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================================
+   Class Node
+   ========================================= */
+
+.dependency-class-node {
+  width: 220px;
+  height: 72px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  padding: 12px 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.08);
+
+  cursor: grab;
+
+  user-select: none;
+}
+
+.dependency-class-node:active {
+  cursor: grabbing;
+}
+
+.dependency-class-node:hover {
+  border-color: #94a3b8;
+
+  box-shadow:
+    0 5px 16px rgba(15, 23, 42, 0.13);
+}
+
+/* Icon */
+
+.dependency-class-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  margin-right: 10px;
+
+  border-radius: 8px;
+
+  background: #f1f5f9;
+
+  color: #334155;
+
+  font-size: 16px;
+}
+
+/* Content */
+
+.dependency-class-content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Class name */
+
+.dependency-class-name {
+  font-size: 14px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+  line-height: 1.3;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Type */
+
+.dependency-class-type {
+  margin-top: 4px;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  color: #64748b;
+}
+
+/* Handles */
+
+.dependency-class-node .react-flow__handle {
+  width: 8px;
+  height: 8px;
+
+  border: 2px solid #ffffff;
+
+  background: #64748b;
+}
+
+/* Legend */
+
+.dependency-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 14px;
+
+  font-size: 0.82rem;
+
+  color: #6c757d;
+}
+
+.dependency-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dependency-legend-node {
+  width: 13px;
+  height: 13px;
+
+  display: inline-block;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  background: #ffffff;
+}
+
+.dependency-legend-arrow {
+  margin-left: 8px;
+
+  font-size: 16px;
+
+  color: #64748b;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+  .dependency-page {
+    width: 100%;
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .dependency-graph-wrapper {
+    height: 560px;
+  }
+
+  .dependency-search-wrapper {
+    max-width: none;
+  }
+}
+

@@ -1,0 +1,267 @@
+/* Codebase Archaeologist: "Section drawing" theme for Bootstrap 5.3
+   Palette: Basalt (dark by default). Import after bootstrap.min.css and
+   set <html data-bs-theme="dark"> so Bootstrap's own components match.
+   Switch to the light counterpart with
+   document.documentElement.setAttribute("data-bs-theme", "light") */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap");
+
+/* ---------- Tokens ---------- */
+
+:root {
+  --ca-font-ui: "Bricolage Grotesque", system-ui, sans-serif;
+  --ca-font-body: "Source Serif 4", Georgia, serif;
+  --ca-font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+
+/* Basalt: the default, dark-first palette */
+:root,
+[data-bs-theme="dark"] {
+  --ca-paper: #131A1D;
+  --ca-chalk: #1C2529;
+  --ca-ink: #E3E8E1;
+  --ca-ink-muted: #98A8A2;
+  --ca-line: #2F3F44;
+  --ca-edge: #5A7178;
+  --ca-grid: rgba(255, 255, 255, 0.05);
+  --ca-plumb: #7DB7E8;
+  --ca-plumb-strong: #A2CDF0;
+  --ca-plumb-rgb: 125, 183, 232;
+  --ca-on-plumb: #0E1E2B;
+  --ca-flag: #FFB020;
+  --ca-flag-rgb: 255, 176, 32;
+
+  /* Strata: code age (recent, established, legacy, ancient) */
+  --ca-s1: #9DBA96;
+  --ca-s2: #CBB87F;
+  --ca-s3: #A98A62;
+  --ca-s4: #7A6352;
+}
+
+/* Light counterpart */
+[data-bs-theme="light"] {
+  --ca-paper: #E6EAE0;
+  --ca-chalk: #F6F7F1;
+  --ca-ink: #1F2B2E;
+  --ca-ink-muted: #56645F;
+  --ca-line: #BAC3B5;
+  --ca-edge: #1F2B2E;
+  --ca-grid: rgba(31, 43, 46, 0.07);
+  --ca-plumb: #2E5E8C;
+  --ca-plumb-strong: #234A70;
+  --ca-plumb-rgb: 46, 94, 140;
+  --ca-on-plumb: #FFFFFF;
+  --ca-flag: #B86E00;
+  --ca-flag-rgb: 184, 110, 0;
+
+  --ca-s1: #A7BFA0;
+  --ca-s2: #CDBD8B;
+  --ca-s3: #B08F68;
+  --ca-s4: #6B5646;
+}
+
+/* ---------- Bootstrap variable mapping ---------- */
+
+:root,
+[data-bs-theme] {
+  --bs-body-font-family: var(--ca-font-body);
+  --bs-body-font-size: 1.0625rem;
+  --bs-body-line-height: 1.65;
+  --bs-body-color: var(--ca-ink);
+  --bs-body-bg: var(--ca-paper);
+  --bs-emphasis-color: var(--ca-ink);
+  --bs-heading-color: var(--ca-ink);
+  --bs-secondary-color: var(--ca-ink-muted);
+  --bs-border-color: var(--ca-line);
+  --bs-border-radius: 2px;
+  --bs-border-radius-sm: 1px;
+  --bs-border-radius-lg: 3px;
+  --bs-primary: var(--ca-plumb);
+  --bs-primary-rgb: var(--ca-plumb-rgb);
+  --bs-link-color: var(--ca-plumb);
+  --bs-link-color-rgb: var(--ca-plumb-rgb);
+  --bs-link-hover-color: var(--ca-plumb-strong);
+  --bs-code-color: var(--ca-plumb-strong);
+}
+
+/* ---------- Base ---------- */
+
+body {
+  background-color: var(--ca-paper);
+  background-image:
+    linear-gradient(var(--ca-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ca-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--ca-font-ui);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+h1, .h1 { font-size: clamp(2rem, 4.5vw, 2.75rem); letter-spacing: -0.025em; }
+
+.btn, .nav-link, .navbar-brand, .form-label, .form-control,
+.form-select, .badge, .table th {
+  font-family: var(--ca-font-ui);
+}
+
+pre, code, kbd, samp, .font-monospace { font-family: var(--ca-font-mono) !important; }
+
+pre {
+  background: var(--ca-chalk);
+  color: var(--ca-ink);
+  border: 1px solid var(--ca-line);
+  border-radius: var(--bs-border-radius);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+mark { background: rgba(var(--ca-flag-rgb), 0.22); color: inherit; padding: 0 0.15em; }
+
+:focus-visible { outline: 2px solid var(--ca-flag); outline-offset: 2px; }
+.btn:focus-visible { box-shadow: none; }
+.form-control:focus, .form-select:focus {
+  border-color: var(--ca-edge);
+  box-shadow: 0 0 0 2px var(--ca-flag);
+}
+
+/* ---------- Bootstrap components ---------- */
+
+.btn { font-weight: 600; letter-spacing: 0; transition: background-color 0.12s, color 0.12s; }
+
+.btn-primary {
+  --bs-btn-color: var(--ca-on-plumb);
+  --bs-btn-bg: var(--ca-plumb);
+  --bs-btn-border-color: var(--ca-edge);
+  --bs-btn-hover-color: var(--ca-on-plumb);
+  --bs-btn-hover-bg: var(--ca-plumb-strong);
+  --bs-btn-hover-border-color: var(--ca-edge);
+  --bs-btn-active-color: var(--ca-on-plumb);
+  --bs-btn-active-bg: var(--ca-plumb-strong);
+  --bs-btn-active-border-color: var(--ca-edge);
+  --bs-btn-disabled-bg: var(--ca-plumb);
+  --bs-btn-disabled-border-color: var(--ca-edge);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--ca-ink);
+  --bs-btn-border-color: var(--ca-edge);
+  --bs-btn-hover-color: var(--ca-chalk);
+  --bs-btn-hover-bg: var(--ca-ink);
+  --bs-btn-hover-border-color: var(--ca-ink);
+  --bs-btn-active-color: var(--ca-chalk);
+  --bs-btn-active-bg: var(--ca-ink);
+  --bs-btn-active-border-color: var(--ca-ink);
+}
+
+.card {
+  --bs-card-bg: var(--ca-chalk);
+  --bs-card-border-color: var(--ca-edge);
+  --bs-card-cap-bg: var(--ca-paper);
+  box-shadow: none;
+}
+
+.navbar.ca-navbar {
+  background: var(--ca-chalk);
+  border-bottom: 1px solid var(--ca-edge);
+}
+.navbar-brand { font-weight: 700; letter-spacing: -0.01em; color: var(--ca-ink); }
+
+/* ---------- Layout ---------- */
+
+.ca-site-header {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--ca-edge);
+}
+
+.dig-layout {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr) 19rem;
+  min-height: 60vh;
+}
+.dig-layout > * { padding: 1.5rem; }
+.dig-tree  { background: var(--ca-chalk); border-right: 1px solid var(--ca-edge); }
+.dig-finds { background: var(--ca-chalk); border-left: 1px solid var(--ca-edge); }
+
+@media (max-width: 991.98px) {
+  .dig-layout { grid-template-columns: 1fr; }
+  .dig-tree, .dig-finds { border: 0; border-bottom: 1px solid var(--ca-edge); }
+}
+
+.prose { max-width: 68ch; }
+.prose p { margin-bottom: 1.1em; }
+
+/* ---------- Strata: the signature element ---------- */
+
+.age-1 { --tag: var(--ca-s1); }
+.age-2 { --tag: var(--ca-s2); }
+.age-3 { --tag: var(--ca-s3); }
+.age-4 { --tag: var(--ca-s4); }
+
+/* Section drawing: a repository's layers, oldest at the bottom */
+
+
+
+/* Scale bar, as on a site drawing */
+.scale-bar {
+  height: 8px;
+  margin-top: 6px;
+  border: 1px solid var(--ca-edge);
+  background: repeating-linear-gradient(90deg, var(--ca-ink) 0 2rem, var(--ca-chalk) 2rem 4rem);
+}
+
+/* Context tag: a find label carrying its layer colour */
+.find-tag {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0.125rem 0.625rem;
+  background: var(--ca-chalk);
+  border: 1px solid var(--ca-edge);
+  border-left: 0.5rem solid var(--tag, var(--ca-line));
+  font-family: var(--ca-font-mono);
+  font-size: 0.8125rem;
+}
+
+.age-dot {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid var(--ca-edge);
+  background: var(--tag);
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--bs-border-radius);
+  background: transparent;
+  color: var(--ca-ink);
+  font-size: 0.875rem;
+  text-align: left;
+}
+.tree-item:hover { background: var(--ca-paper); }
+.tree-item.is-selected { background: var(--ca-paper); border-color: var(--ca-edge); }
+
+/* AI findings */
+.finding {
+  margin-top: 1rem;
+  padding-left: 0.875rem;
+  border-left: 3px solid var(--ca-plumb);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.finding.risk { border-left-color: var(--ca-flag); }
+.finding strong { font-family: var(--ca-font-ui); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
