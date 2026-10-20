@@ -80,7 +80,7 @@ function ProjectList() {
         </div>
 
         <Link
-          to="/add-project"
+          to="/projects/new"
           className="project-list-add-btn"
         >
           + Add Project

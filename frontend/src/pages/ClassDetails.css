@@ -46,8 +46,8 @@
 .class-details-file code {
   padding: 0.15rem 0.35rem;
   border-radius: 5px;
-  background: #4e555d;
-  color: #c5cbd2;
+  background: #f1f5f9;
+  color: #344c6b;
   font-size: 0.88em;
   overflow-wrap: anywhere;
 }
@@ -73,7 +73,7 @@
   max-width: none;
   margin-bottom: 1.5rem;
   overflow: hidden;
-  background: #474859;
+  background: #282834;
   border: 1px solid #dee2e6;
   border-radius: 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -105,7 +105,7 @@
 
 .class-details-card-header p {
   margin: 0.35rem 0 0;
-  color: #a8b2c1;
+  color: #ffffff;
   font-size: 0.85rem;
   line-height: 1.5;
 }
@@ -130,14 +130,14 @@
 .class-details-card-body {
   min-width: 0;
   padding: 1.5rem;
-  background: #4e5265;
-  color: #a8adb5;
+  background: #334e60;
+  color: #f0f1f4;
   line-height: 1.7;
 }
 
 .class-details-explanation {
   margin: 0;
-  color: #64748b;
+  color: #f5f7fb;
   font-size: 0.95rem;
   line-height: 1.8;
   white-space: pre-wrap;
@@ -157,7 +157,7 @@
 /* Documentation link */
 
 .class-details-action-link {
-  color: var(--bs-primary, #0d6efd);
+  color: var(--bs-primary, #550dfd);
   font-weight: 600;
   text-decoration: none;
 }
@@ -181,7 +181,7 @@
   align-items: baseline;
   gap: 0.5rem 0.75rem;
   padding: 0.9rem 1rem;
-  background: #c2d2e2;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 9px;
 }
@@ -214,13 +214,13 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.9rem 1rem;
-  background: #e7e8e9;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 9px;
 }
 
 .class-details-dependency-link {
-  color: var(--bs-primary, #710dfd);
+  color: #26264a;
   font-weight: 600;
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -298,72 +298,4 @@
     align-items: flex-start;
     flex-direction: column;
   }
-}
-
-/* Markdown styling for AI explanation */
-
-.class-details-explanation {
-  color: #a8adb5;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
-
-.class-details-explanation h1,
-.class-details-explanation h2,
-.class-details-explanation h3,
-.class-details-explanation h4 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  color: #ecf1ff;
-  font-weight: 700;
-}
-
-.class-details-explanation h1:first-child,
-.class-details-explanation h2:first-child,
-.class-details-explanation h3:first-child {
-  margin-top: 0;
-}
-
-.class-details-explanation p {
-  margin-bottom: 1rem;
-  color: #97a1af;
-}
-
-.class-details-explanation ul,
-.class-details-explanation ol {
-  padding-left: 1.5rem;
-  color: #9da4ac;
-}
-
-.class-details-explanation li {
-  margin-bottom: 0.4rem;
-}
-
-.class-details-explanation code {
-  padding: 0.15rem 0.35rem;
-  border-radius: 5px;
-  background: #f1f5f9;
-  color: #344c6b;
-  font-size: 0.88em;
-}
-
-.class-details-explanation pre {
-  padding: 1rem;
-  border-radius: 10px;
-  background: #0f172a;
-  overflow-x: auto;
-}
-
-.class-details-explanation pre code {
-  padding: 0;
-  background: transparent;
-  color: #e2e8f0;
-}
-
-.class-details-explanation blockquote {
-  margin: 1rem 0;
-  padding: 0.75rem 1rem;
-  border-left: 3px solid #94a3b8;
-  color: #64748b;
-  background: #f8fafc;
 }
