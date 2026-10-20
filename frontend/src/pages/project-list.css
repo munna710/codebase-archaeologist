@@ -120,7 +120,7 @@
   border: 1px solid #dee2e6;
   border-radius: 14px;
 
-  background: #fff;
+  background: #415866;
 
   color: var(--ca-ink);
   text-decoration: none;
@@ -222,6 +222,7 @@
 .project-card-body {
   flex: 1;
   min-width: 0;
+  
 }
 
 .project-card-body h2 {
@@ -229,7 +230,7 @@
 
   margin: 0 0 0.55rem;
 
-  color: var(--ca-chalk);
+  color: #fff;
 
   font-size: 1.05rem;
   font-weight: 700;
@@ -268,7 +269,7 @@
 
   border-top: 1px solid #f1f5f9;
 
-  color: #64748b;
+  color: #c7cfdb;
 
   font-size: 0.8rem;
   font-weight: 600;
